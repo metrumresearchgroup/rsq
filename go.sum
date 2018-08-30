@@ -1,0 +1,6 @@
+github.com/dpastoor/goutils v1.2.0 h1:Lj4ve0rGfkNqzelPMV76pLw+ysXO/cEaB/pnL/sM4iA=
+github.com/dpastoor/goutils v1.2.0/go.mod h1:N+3ofBXpe+xvDr0xr0Al2H3s1B9z4t0yx6nWP+ro+2A=
+github.com/spf13/afero v1.1.1 h1:Lt3ihYMlE+lreX1GS4Qw4ZsNpYQLxIXKBTEOXm3nt6I=
+github.com/spf13/afero v1.1.1/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B0CQ=
+golang.org/x/text v0.3.0 h1:g61tztE5qeGQ89tm6NTjjM9VPIm088od1l6aSorWRWg=
+golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
