@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// LoadGlobalConfig loads pkgcheck configuration into the global Viper
+// LoadGlobalConfig loads rsq configuration into the global Viper
 func LoadGlobalConfig(configFilename string) error {
 	viper.SetConfigName(configFilename)
 	viper.SetConfigType("yaml")
