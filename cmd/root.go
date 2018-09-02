@@ -122,3 +122,29 @@ func expand(s string) string {
 
 	return s
 }
+
+func logIfNonZero(lg *logrus.Logger, s []string, lvl string) error {
+	lf := lg.Errorf
+	switch logLevel := lvl; logLevel {
+	case "debug":
+		lf = lg.Debugf
+	case "info":
+		lf = lg.Infof
+	case "warn":
+		lf = lg.Warnf
+	case "error":
+		lf = lg.Errorf
+	case "fatal":
+		lf = lg.Fatalf
+	case "panic":
+		lf = lg.Panicf
+	default:
+	}
+	if s == nil || len(s) == 0 {
+		return nil
+	}
+	for _, v := range s {
+		lf("%v", v)
+	}
+	return nil
+}
