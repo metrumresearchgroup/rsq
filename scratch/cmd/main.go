@@ -18,10 +18,12 @@ func main() {
 		Rpath:    "R",
 	}
 	wd, _ := os.Getwd()
+	execSettings := runner.ExecSettings{
+		WorkDir: wd,
+		Rfile:   "add-stop.R",
+	}
 	runner.RunRscript(appFS,
 		runSettings,
-		wd,
-		"add.R",
+		execSettings,
 		lg)
-
 }
