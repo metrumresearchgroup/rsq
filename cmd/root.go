@@ -56,7 +56,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
-	RootCmd.PersistentFlags().String("config", "", "config file (default is $HOME/pkgcheck.toml)")
+	RootCmd.PersistentFlags().String("config", "", "config file (default is $HOME/rsq.yml)")
 	viper.BindPFlag("config", RootCmd.PersistentFlags().Lookup("config"))
 
 	RootCmd.PersistentFlags().String("loglevel", "", "level for logging")
@@ -106,7 +106,7 @@ func initConfig() {
 	// 	viper.SetConfigFile(cfgFile)
 	// }
 	if viper.GetString("config") == "" {
-		_ = configlib.LoadGlobalConfig("pkgcheck")
+		_ = configlib.LoadGlobalConfig("rsq")
 	} else {
 		_ = configlib.LoadConfigFromPath(viper.GetString("config"))
 	}
