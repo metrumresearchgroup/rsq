@@ -1,13 +1,18 @@
 package runner
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
+	"syscall"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
+
+const defaultFailedCode = 1
+const defaultSuccessCode = 0
 
 // RunR launches an interactive R console
 func RunR(
@@ -63,15 +68,14 @@ func RunR(
 func RunRscript(
 	fs afero.Fs,
 	rs RSettings,
-	rdir string, // this should be put into RSettings
-	rfile string,
+	es ExecSettings,
 	lg *logrus.Logger,
 ) error {
 
 	cmdArgs := []string{
 		"--no-save",
 		"--no-restore-data",
-		rfile,
+		es.Rfile,
 	}
 
 	envVars := os.Environ()
@@ -82,9 +86,10 @@ func RunRscript(
 
 	lg.WithFields(
 		logrus.Fields{
-			"cmdArgs":   cmdArgs,
-			"RSettings": rs,
-			"env":       rLibsSite,
+			"cmdArgs":      cmdArgs,
+			"RSettings":    rs,
+			"ExecSettings": es,
+			"env":          rLibsSite,
 		}).Debug("command args")
 
 	// --vanilla is a command for R and should be specified before the CMD, eg
@@ -97,6 +102,7 @@ func RunRscript(
 		cmdArgs...,
 	)
 
+	rdir := es.WorkDir
 	if rdir == "" {
 		rdir, _ = os.Getwd()
 		lg.WithFields(
@@ -105,7 +111,39 @@ func RunRscript(
 	}
 	cmd.Dir = rdir
 	cmd.Env = envVars
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	var outbuf, errbuf bytes.Buffer
+	cmd.Stdout = &outbuf
+	cmd.Stderr = &errbuf
+
+	err := cmd.Run()
+	stdout := outbuf.String()
+	stderr := errbuf.String()
+	exitCode := defaultSuccessCode
+	if err != nil {
+		// try to get the exit code
+		if exitError, ok := err.(*exec.ExitError); ok {
+			ws := exitError.Sys().(syscall.WaitStatus)
+			exitCode = ws.ExitStatus()
+		} else {
+			// This will happen (in OSX) if `name` is not available in $PATH,
+			// in this situation, exit code could not be get, and stderr will be
+			// empty string very likely, so we use the default fail code, and format err
+			// to string and set to stderr
+			exitCode = defaultFailedCode
+			if stderr == "" {
+				stderr = err.Error()
+			}
+		}
+	} else {
+		// success, exitCode should be 0 if go is ok
+		ws := cmd.ProcessState.Sys().(syscall.WaitStatus)
+		exitCode = ws.ExitStatus()
+	}
+	lg.WithFields(
+		logrus.Fields{
+			"stdout":   stdout,
+			"stderr":   stderr,
+			"exitCode": exitCode,
+		}).Info("cmd output")
+	return err
 }
