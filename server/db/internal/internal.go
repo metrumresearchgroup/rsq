@@ -3,9 +3,8 @@ package internal
 import (
 	"fmt"
 
-	"github.com/dpastoor/babylon/runner"
 	"github.com/gogo/protobuf/proto"
-	"github.com/metrumresearchgroup/srq/server"
+	"github.com/metrumresearchgroup/rsq/server"
 )
 
 // need go get github.com/gogo/protobuf/protoc-gen-gofast
@@ -32,11 +31,10 @@ func MarshalJob(m *server.Job) ([]byte, error) {
 		Id:     m.ID,
 		Status: status,
 		RunDetails: &RunDetails{
-			QueueTime: jobDetails.QueueTime,
-			StartTime: jobDetails.StartTime,
-			Duration:  jobDetails.Duration,
-			RunDir:    jobDetails.RunDir,
-			Error:     jobDetails.Error,
+			QueueTime: runDetails.QueueTime,
+			StartTime: runDetails.StartTime,
+			Duration:  runDetails.Duration,
+			Error:     runDetails.Error,
 		},
 	})
 }
