@@ -22,6 +22,9 @@ func main() {
 		WorkDir: wd,
 		Rfile:   "add-stop.R",
 	}
+	// if passes will give exit code 0
+	// if stopped will give exit code 1
+	// if rscript not found will give exit code 2
 	runner.RunRscript(appFS,
 		runSettings,
 		execSettings,
