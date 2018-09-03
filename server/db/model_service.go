@@ -31,11 +31,20 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 			//k := item.Key()
 			v, err := item.Value()
 			if err != nil {
-				// TODO: do something
+				fmt.Println("error")
+				fmt.Println(err)
+				// TODO: do something better
+				continue
 			}
 			var job server.Job
-			internal.UnmarshalJob(v, &job)
-			jobs = append(jobs, job)
+			err = internal.UnmarshalJob(v, &job)
+			if err != nil {
+				fmt.Println("error unmarshalling")
+				fmt.Println(err)
+				continue
+			} else {
+				jobs = append(jobs, job)
+			}
 		}
 		return nil
 	})
@@ -67,23 +76,25 @@ func (m *JobService) CreateJob(job *server.Job) error {
 	// don't want to ever have a 0 id since makes it hard to tell
 	// if the db was actually storing the job, or if the job ID was
 	// set to default 0 value
-	if id == 0 {
-		id, err = seq.Next()
+	job.ID = int64(id + 1)
+	buf, err := internal.MarshalJob(job)
+	if err != nil {
+		fmt.Println("error marshalling")
+		return err
 	}
-	job.ID = int64(id)
-	if buf, err := internal.MarshalJob(job); err != nil {
-		err := m.client.db.Update(func(txn *badger.Txn) error {
-			err = txn.Set(uint64ToBytes(id), buf)
-			if err != nil {
-				// TODO: handle error
-				fmt.Println(err)
-			}
-			return nil
-		})
+	err = m.client.db.Update(func(txn *badger.Txn) error {
+		err = txn.Set(uint64ToBytes(id), buf)
 		if err != nil {
-			// TODO: handle error better
+			// TODO: handle error
 			fmt.Println(err)
+			return err
 		}
+		return nil
+	})
+	if err != nil {
+		// TODO: handle error better
+		fmt.Println(err)
+		return err
 	}
 	return nil
 }
