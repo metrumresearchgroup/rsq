@@ -1,11 +1,13 @@
 module github.com/metrumresearchgroup/rsq
 
 require (
+	github.com/AndreasBriese/bbloom v0.0.0-20170702084017-28f7e881ca57 // indirect
 	github.com/BurntSushi/toml v0.3.0 // indirect
+	github.com/dgraph-io/badger v1.5.3
+	github.com/dgryski/go-farm v0.0.0-20180109070241-2de33835d102 // indirect
 	github.com/dpastoor/goutils v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/gofrs/uuid/v3 v3.1.1
-	github.com/gogo/protobuf v1.1.1
 	github.com/golang/protobuf v1.2.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hpcloud/tail v1.0.0 // indirect
@@ -15,13 +17,14 @@ require (
 	github.com/onsi/ginkgo v1.6.0 // indirect
 	github.com/onsi/gomega v1.4.1 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect
+	github.com/pkg/errors v0.8.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.0.6
 	github.com/spf13/afero v1.1.1
 	github.com/spf13/cast v1.2.0 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/jwalterweatherman v0.0.0-20180814060501-14d3d4c51834 // indirect
-	github.com/spf13/pflag v1.0.2
+	github.com/spf13/pflag v1.0.2 // indirect
 	github.com/spf13/viper v1.1.0
 	github.com/stretchr/testify v1.2.2 // indirect
 	golang.org/x/crypto v0.0.0-20180830192347-182538f80094 // indirect
