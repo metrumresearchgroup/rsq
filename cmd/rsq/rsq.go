@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/metrumresearchgroup/pkgcheck/cmd"
+	"github.com/metrumresearchgroup/rsq/cmd"
 )
 
 // if want to generate docs
