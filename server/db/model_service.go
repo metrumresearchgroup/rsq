@@ -27,7 +27,7 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 		// jobs bucket created when db initialized
 		for it.Rewind(); it.Valid(); it.Next() {
 			item := it.Item()
-			k := item.Key()
+			//k := item.Key()
 			v, err := item.Value()
 			if err != nil {
 				// TODO: do something

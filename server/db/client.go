@@ -50,7 +50,7 @@ func (c *Client) Open() error {
 		log.Fatal(err)
 	}
 	c.db = db
-
+	return err
 }
 
 // Close closes then underlying BoltDB database.
