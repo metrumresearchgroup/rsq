@@ -12,7 +12,7 @@ import "time"
 type RunDetails struct {
 	QueueTime time.Time `json:"queue_time,omitempty"`
 	StartTime time.Time `json:"start_time,omitempty"`
-	Duration  int64     `json:"duration,omitempty"`
+	EndTime   time.Time `json:"end_time,omitempty"`
 	Error     string    `json:"error,omitempty"`
 }
 
