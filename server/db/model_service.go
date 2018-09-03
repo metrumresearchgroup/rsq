@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/binary"
+	"fmt"
 
 	"github.com/dgraph-io/badger"
 	"github.com/metrumresearchgroup/rsq/server"
@@ -55,6 +56,35 @@ func (m *JobService) GetJobByID(jobID int) (server.Job, error) {
 
 // CreateJob adds a job to the db
 func (m *JobService) CreateJob(job *server.Job) error {
+	seq, err := m.client.db.GetSequence([]byte("job1"), 1)
+
+	id, err := seq.Next()
+	if err != nil {
+		// TODO: handle error better
+		fmt.Println("error creating sequence")
+		return nil
+	}
+	// don't want to ever have a 0 id since makes it hard to tell
+	// if the db was actually storing the job, or if the job ID was
+	// set to default 0 value
+	if id == 0 {
+		id, err = seq.Next()
+	}
+	job.ID = int64(id)
+	if buf, err := internal.MarshalJob(job); err != nil {
+		err := m.client.db.Update(func(txn *badger.Txn) error {
+			err = txn.Set(uint64ToBytes(id), buf)
+			if err != nil {
+				// TODO: handle error
+				fmt.Println(err)
+			}
+			return nil
+		})
+		if err != nil {
+			// TODO: handle error better
+			fmt.Println(err)
+		}
+	}
 	return nil
 }
 
@@ -72,6 +102,16 @@ func (m *JobService) AcquireNextQueuedJob() (server.Job, error) {
 // UpdateJob updates the job status
 func (m *JobService) UpdateJob(job *server.Job) error {
 	return nil
+}
+
+func uint64ToBytes(i uint64) []byte {
+	var buf [8]byte
+	binary.BigEndian.PutUint64(buf[:], i)
+	return buf[:]
+}
+
+func bytesToUint64(b []byte) uint64 {
+	return binary.BigEndian.Uint64(b)
 }
 
 // itob returns an 8-byte big endian representation of v.
