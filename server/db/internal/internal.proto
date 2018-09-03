@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package internal;
+
+message RunDetails {
+    google.protobuf.Timestamp queue_time = 1;
+    google.protobuf.Timestamp start_time = 2;
+    google.protobuf.Timestamp end_time = 3;
+    string error = 4;
+}
+
+message Job {
+    string id = 1;
+
+    enum StatusType {
+        QUEUED = 0;
+        RUNNING = 1;
+        COMPLETED = 2;
+        ERROR = 3;
+    }
+
+    StatusType status = 2;
+    RunDetails run_details = 3; 
+}
