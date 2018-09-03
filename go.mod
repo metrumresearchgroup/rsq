@@ -3,15 +3,14 @@ module github.com/metrumresearchgroup/rsq
 require (
 	github.com/BurntSushi/toml v0.3.0 // indirect
 	github.com/dpastoor/goutils v1.2.0
-	github.com/dpastoor/pkgcheck v0.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
+	github.com/gofrs/uuid/v3 v3.1.1
 	github.com/gogo/protobuf v1.1.1
 	github.com/golang/protobuf v1.2.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.0 // indirect
-	github.com/metrumresearchgroup/pkgcheck v0.1.1
 	github.com/mitchellh/mapstructure v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.6.0 // indirect
 	github.com/onsi/gomega v1.4.1 // indirect

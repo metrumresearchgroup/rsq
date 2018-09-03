@@ -4,10 +4,10 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dpastoor/goutils v1.2.0 h1:Lj4ve0rGfkNqzelPMV76pLw+ysXO/cEaB/pnL/sM4iA=
 github.com/dpastoor/goutils v1.2.0/go.mod h1:N+3ofBXpe+xvDr0xr0Al2H3s1B9z4t0yx6nWP+ro+2A=
-github.com/dpastoor/pkgcheck v0.1.1 h1:K640fDxGB65rKuy3ZBlLGVUHQF6o0A67u4DVgQk6OMY=
-github.com/dpastoor/pkgcheck v0.1.1/go.mod h1:3kXBrQCozIX+mF0r3XuJuy6Ow7noc/9l1+lItl3yXeQ=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
+github.com/gofrs/uuid/v3 v3.1.1 h1:sqMK0jjyOJ7HV36lwG2GZ6TD2hK8RB7dJQVDakI65U4=
+github.com/gofrs/uuid/v3 v3.1.1/go.mod h1:xPwMqoocQ1L5G6pXX5BcE7N5jlzn2o19oqAKxwZW/kI=
 github.com/gogo/protobuf v1.1.1 h1:72R+M5VuhED/KujmZVcIquuo8mBgX4oVda//DQb3PXo=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/golang/protobuf v1.2.0 h1:P3YflyNX/ehuJFLhxviNdFxQPkGK5cDcApsge1SqnvM=
@@ -20,8 +20,6 @@ github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NH
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/magiconair/properties v1.8.0 h1:LLgXmsheXeRoUOBOjtwPQCWIYqM/LU1ayDtDePerRcY=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
-github.com/metrumresearchgroup/pkgcheck v0.1.1 h1:NblY3RtUTaIfSTcVP9UfeFfUMG+S3v9VjImMxJ1vnRY=
-github.com/metrumresearchgroup/pkgcheck v0.1.1/go.mod h1:mU3fTa2ZwzipnyRcGEWnR536QjLmkEj5QdycV+lKnPw=
 github.com/mitchellh/mapstructure v1.0.0 h1:vVpGvMXJPqSDh2VYHF7gsfQj8Ncx+Xw5Y1KHeTRY+7I=
 github.com/mitchellh/mapstructure v1.0.0/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=
