@@ -3,16 +3,14 @@ package internal
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/metrumresearchgroup/rsq/server"
 )
 
-// need go get github.com/gogo/protobuf/protoc-gen-gofast
+//go:generate protoc --go_out=. *.proto
 
-//go:generate protoc --gofast_out=. internal.proto
-
-// MarshalJob encodes a model to binary format.
+// MarshalJob encodes a model to binay format.
 func MarshalJob(m *server.Job) ([]byte, error) {
 	var status Job_StatusType
 	runDetails := &m.RunDetails
