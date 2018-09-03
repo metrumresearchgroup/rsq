@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/metrumresearchgroup/rsq/runner"
+	"github.com/metrumresearchgroup/rsq/server"
 	"github.com/sirupsen/logrus"
 
 	"github.com/metrumresearchgroup/rsq/server/db"
@@ -33,6 +36,44 @@ func main() {
 		log.Fatalf("could not open db %v", err)
 		os.Exit(1)
 	}
+
+	testJob := server.Job{
+		Status: "COMPLETED",
+		RunDetails: server.RunDetails{
+			QueueTime: time.Now().AddDate(0, 0, -1).UTC(),
+			StartTime: time.Now().AddDate(0, 0, 0).UTC(),
+			EndTime:   time.Now().AddDate(0, 0, 1).UTC(),
+			Error:     "no error",
+		},
+	}
+	testJob2 := server.Job{
+		Status: "QUEUED",
+		RunDetails: server.RunDetails{
+			QueueTime: time.Now().AddDate(0, 0, -1).UTC(),
+			StartTime: time.Now().AddDate(0, 0, 0).UTC(),
+			EndTime:   time.Now().AddDate(0, 0, 1).UTC(),
+			Error:     "no error",
+		},
+	}
+	js := client.JobService()
+	// fmt.Println("about to set job")
+	// fmt.Println(testJob)
+	err = js.CreateJob(&testJob)
+	err = js.CreateJob(&testJob2)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("job set")
+	// fmt.Println(testJob)
+	fmt.Println("----------all jobs -----------")
+	jobs, err := js.GetJobs()
+	fmt.Println(fmt.Sprintf("num jobs: %v", len(jobs)))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(jobs)
 	return
 }
 
