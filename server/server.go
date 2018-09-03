@@ -18,7 +18,7 @@ type RunDetails struct {
 
 // Job represents information about the job queue
 type Job struct {
-	ID         string
+	ID         int64
 	Status     string
 	RunDetails RunDetails
 }
