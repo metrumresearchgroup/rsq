@@ -6,26 +6,27 @@ import (
 
 	"reflect"
 
+	"github.com/gofrs/uuid/v3"
 	"github.com/metrumresearchgroup/rsq/server"
 )
 
 func TestMarshalJob(t *testing.T) {
-	u1, err := uuid.NewV4()
+	u1, _ := uuid.NewV4()
 	testJob := server.Job{
-		ID:     u1,
+		ID:     u1.String(),
 		Status: "COMPLETED",
-		RunInfo: server.RunInfo{
+		RunDetails: server.RunDetails{
 			QueueTime: time.Now().AddDate(0, 0, -1),
-			StartTime: time.Now().AddDate(0, 0, -1),
-			EndTime:   time.Now().AddDate(0, 0, -1),
-			Error:     "success",
+			StartTime: time.Now().AddDate(0, 0, 0),
+			EndTime:   time.Now().AddDate(0, 0, 1),
+			Error:     "no error",
 		},
 	}
 
 	var result server.Job
-	if buf, err := MarshalModel(&testJob); err != nil {
+	if buf, err := MarshalJob(&testJob); err != nil {
 		t.Fatal(err)
-	} else if err := UnmarshalModel(buf, &result); err != nil {
+	} else if err := UnmarshalJob(buf, &result); err != nil {
 		t.Fatal(err)
 	} else if !reflect.DeepEqual(testJob, result) {
 		t.Fatalf("unexpected copy: %#v", result)
