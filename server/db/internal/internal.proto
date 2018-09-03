@@ -12,7 +12,7 @@ message RunDetails {
 }
 
 message Job {
-    string id = 1;
+    int64 id = 1;
 
     enum StatusType {
         QUEUED = 0;

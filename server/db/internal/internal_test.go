@@ -6,14 +6,12 @@ import (
 
 	"reflect"
 
-	"github.com/gofrs/uuid/v3"
 	"github.com/metrumresearchgroup/rsq/server"
 )
 
 func TestMarshalJob(t *testing.T) {
-	u1, _ := uuid.NewV4()
 	testJob := server.Job{
-		ID:     u1.String(),
+		ID:     int64(1234),
 		Status: "COMPLETED",
 		RunDetails: server.RunDetails{
 			QueueTime: time.Now().AddDate(0, 0, -1).UTC(),

@@ -8,7 +8,7 @@ import (
 	"github.com/metrumresearchgroup/rsq/server"
 )
 
-//go:generate protoc --go_out=. *.proto
+//go:generate protoc --go_out=. internal.proto
 // using to gogoproto had problems with timestamps
 // so just using regular as super performance doesn't matter
 // MarshalJob encodes a model to binay format.
