@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/metrumresearchgroup/rsq/server"
 )
 
@@ -27,13 +28,17 @@ func MarshalJob(m *server.Job) ([]byte, error) {
 	default:
 		return nil, fmt.Errorf("unrecognized Job status: %v", m.Status)
 	}
+
+	queueTime, _ := ptypes.TimestampProto(runDetails.QueueTime)
+	startTime, _ := ptypes.TimestampProto(runDetails.StartTime)
+	endTime, _ := ptypes.TimestampProto(runDetails.EndTime)
 	return proto.Marshal(&Job{
 		Id:     m.ID,
 		Status: status,
 		RunDetails: &RunDetails{
-			QueueTime: runDetails.QueueTime,
-			StartTime: runDetails.StartTime,
-			Duration:  runDetails.Duration,
+			QueueTime: queueTime,
+			StartTime: startTime,
+			EndTime:   endTime,
 			Error:     runDetails.Error,
 		},
 	})
@@ -63,10 +68,14 @@ func UnmarshalJob(data []byte, m *server.Job) error {
 	default:
 		return fmt.Errorf("unrecognized job status: %v", status)
 	}
+
+	queueTime, _ := ptypes.Timestamp(runDetails.QueueTime)
+	startTime, _ := ptypes.Timestamp(runDetails.StartTime)
+	endTime, _ := ptypes.Timestamp(runDetails.EndTime)
 	m.RunDetails = server.RunDetails{
-		QueueTime: runDetails.QueueTime,
-		StartTime: runDetails.StartTime,
-		Duration:  runDetails.Duration,
+		QueueTime: queueTime,
+		StartTime: startTime,
+		EndTime:   endTime,
 		Error:     runDetails.Error,
 	}
 
