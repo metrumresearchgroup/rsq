@@ -1,12 +1,12 @@
 # goreleaser.yml
 # Build customization
-project_name: pkc
+project_name: rsq
 
 release:
   prerelease: true
 
 build:
-  binary: pkc
+  binary: rsq
   goos:
     - windows
     - darwin
