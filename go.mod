@@ -2,10 +2,7 @@ module github.com/metrumresearchgroup/rsq
 
 require (
 	github.com/BurntSushi/toml v0.3.0 // indirect
-	github.com/apcera/termtables v0.0.0-20170405184538-bcbc5dc54055 // indirect
-	github.com/dpastoor/babylon v0.2.0
 	github.com/dpastoor/goutils v1.2.0
-	github.com/dpastoor/nonmemutils v0.0.0-20170926132219-43a4badba679 // indirect
 	github.com/dpastoor/pkgcheck v0.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/gogo/protobuf v1.1.1
@@ -13,9 +10,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/logrusorgru/aurora v0.0.0-20180419164547-d694e6f975a9 // indirect
 	github.com/magiconair/properties v1.8.0 // indirect
-	github.com/mattn/go-runewidth v0.0.3 // indirect
 	github.com/metrumresearchgroup/pkgcheck v0.1.1
 	github.com/mitchellh/mapstructure v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.6.0 // indirect
