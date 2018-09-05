@@ -23,4 +23,5 @@ message Job {
 
     StatusType status = 2;
     RunDetails run_details = 3; 
+    string context = 4;
 }

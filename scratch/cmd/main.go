@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/metrumresearchgroup/rsq/server/db"
+	"github.com/metrumresearchgroup/rsq/server/httpserver"
 	"github.com/spf13/afero"
 )
 
@@ -37,6 +38,36 @@ func main() {
 		os.Exit(1)
 	}
 
+	js := client.JobService()
+	// fmt.Println("about to set job")
+	// fmt.Println(testJob)
+	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8999")
+
+	return
+}
+
+// runScriptExample(appFS, lg, "add.R")
+// runScriptExample(appFS, lg, "add-stop.R")
+func runScriptExample(appFS afero.Fs, lg *logrus.Logger, rfile string) {
+	runSettings := runner.RSettings{
+		LibPaths: []string{},
+		Rpath:    "R",
+	}
+	wd, _ := os.Getwd()
+	execSettings := runner.ExecSettings{
+		WorkDir: wd,
+		Rfile:   rfile,
+	}
+	// if passes will give exit code 0
+	// if stopped will give exit code 1
+	// if rscript not found will give exit code 2
+	runner.RunRscript(appFS,
+		runSettings,
+		execSettings,
+		lg)
+}
+
+func runJobCreationExamples(js server.JobService) {
 	testJob := server.Job{
 		Status: "COMPLETED",
 		RunDetails: server.RunDetails{
@@ -55,10 +86,7 @@ func main() {
 			Error:     "no error",
 		},
 	}
-	js := client.JobService()
-	// fmt.Println("about to set job")
-	// fmt.Println(testJob)
-	err = js.CreateJob(&testJob)
+	err := js.CreateJob(&testJob)
 	err = js.CreateJob(&testJob2)
 	if err != nil {
 		fmt.Println(err)
@@ -83,26 +111,4 @@ func main() {
 	fmt.Println(queuedJobs, err)
 	queuedJobs, err = js.GetJobsByStatus("nonsense")
 	fmt.Println(queuedJobs, err)
-	return
-}
-
-// runScriptExample(appFS, lg, "add.R")
-// runScriptExample(appFS, lg, "add-stop.R")
-func runScriptExample(appFS afero.Fs, lg *logrus.Logger, rfile string) {
-	runSettings := runner.RSettings{
-		LibPaths: []string{},
-		Rpath:    "R",
-	}
-	wd, _ := os.Getwd()
-	execSettings := runner.ExecSettings{
-		WorkDir: wd,
-		Rfile:   rfile,
-	}
-	// if passes will give exit code 0
-	// if stopped will give exit code 1
-	// if rscript not found will give exit code 2
-	runner.RunRscript(appFS,
-		runSettings,
-		execSettings,
-		lg)
 }
