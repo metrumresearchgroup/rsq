@@ -3,7 +3,9 @@ package db
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/dgraph-io/badger"
 	"github.com/metrumresearchgroup/rsq/server"
@@ -64,13 +66,97 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 // GetJobsByStatus returns all jobs in the db
 func (m *JobService) GetJobsByStatus(status string) ([]server.Job, error) {
 	var jobs []server.Job
-	return jobs, nil
+	err := m.client.db.View(func(txn *badger.Txn) error {
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchSize = 10
+		it := txn.NewIterator(opts)
+		defer it.Close()
+		// jobs bucket created when db initialized
+		for it.Rewind(); it.Valid(); it.Next() {
+			item := it.Item()
+			k := item.Key()
+			// badger creates an additional key called job1 since we have that as the
+			// monotonic increasing prefix - I don't know why it does and should
+			// hunt this down more, but for now, we can just not try to unmarshal
+			// this one
+			// TODO: followup on incrementing
+			if bytes.Compare(k, []byte("job1")) == 0 {
+				continue
+			}
+			v, err := item.Value()
+			if err != nil {
+				fmt.Println("error")
+				fmt.Println(err)
+				// TODO: do something better
+				continue
+			}
+			var job server.Job
+			err = internal.UnmarshalJob(v, &job)
+			if err != nil {
+				fmt.Println("error unmarshalling")
+				fmt.Println(item, k, v)
+				fmt.Println(err)
+				continue
+			} else {
+				if job.Status == status {
+					jobs = append(jobs, job)
+				}
+			}
+		}
+		return nil
+	})
+	if len(jobs) == 0 {
+		err = errors.New("no jobs found with status: " + status)
+	}
+	return jobs, err
 }
 
 // GetJobByID returns details about a specific Job
-func (m *JobService) GetJobByID(jobID int) (server.Job, error) {
+func (m *JobService) GetJobByID(jobID int64) (server.Job, error) {
 	var job server.Job
-	return job, nil
+	err := m.client.db.View(func(txn *badger.Txn) error {
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchSize = 10
+		it := txn.NewIterator(opts)
+		defer it.Close()
+		// jobs bucket created when db initialized
+		for it.Rewind(); it.Valid(); it.Next() {
+			item := it.Item()
+			k := item.Key()
+			// badger creates an additional key called job1 since we have that as the
+			// monotonic increasing prefix - I don't know why it does and should
+			// hunt this down more, but for now, we can just not try to unmarshal
+			// this one
+			// TODO: followup on incrementing
+			if bytes.Compare(k, []byte("job1")) == 0 {
+				continue
+			}
+			v, err := item.Value()
+			if err != nil {
+				fmt.Println("error")
+				fmt.Println(err)
+				// TODO: do something better
+				continue
+			}
+			var newjob server.Job
+			err = internal.UnmarshalJob(v, &newjob)
+			if err != nil {
+				fmt.Println("error unmarshalling")
+				fmt.Println(item, k, v)
+				fmt.Println(err)
+				continue
+			}
+			if newjob.ID == jobID {
+				job = newjob
+				return nil
+			}
+		}
+		return nil
+	})
+	if job.ID == int64(0) {
+		err = errors.New("job ID not found: " + strconv.Itoa(int((jobID))))
+	}
+	return job, err
 }
 
 // CreateJob adds a job to the db
