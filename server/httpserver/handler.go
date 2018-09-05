@@ -11,6 +11,11 @@ import (
 	"github.com/metrumresearchgroup/rsq/server"
 )
 
+// this is because ctx cannot have raw strings
+// so instead we can define a unique const that can be used to prevent
+// context collisions
+// see: https://stackoverflow.com/questions/40891345/fix-should-not-use-basic-type-string-as-key-in-context-withvalue-golint
+// and information about context collision at https://blog.golang.org/context#TOC_3.2.
 type key int
 
 const (
