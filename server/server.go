@@ -21,6 +21,8 @@ type Job struct {
 	ID         int64
 	Status     string
 	RunDetails RunDetails
+	// some information about the job like the title
+	Context string
 }
 
 // Client creates a connection to services
