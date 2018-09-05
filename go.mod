@@ -7,6 +7,8 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20180109070241-2de33835d102 // indirect
 	github.com/dpastoor/goutils v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
+	github.com/go-chi/chi v3.3.3+incompatible
+	github.com/go-chi/render v1.0.1
 	github.com/gofrs/uuid/v3 v3.1.1
 	github.com/golang/protobuf v1.2.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
