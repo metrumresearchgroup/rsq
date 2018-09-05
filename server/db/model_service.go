@@ -1,6 +1,7 @@
 package db
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 
@@ -28,7 +29,15 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 		// jobs bucket created when db initialized
 		for it.Rewind(); it.Valid(); it.Next() {
 			item := it.Item()
-			//k := item.Key()
+			k := item.Key()
+			// badger creates an additional key called job1 since we have that as the
+			// monotonic increasing prefix - I don't know why it does and should
+			// hunt this down more, but for now, we can just not try to unmarshal
+			// this one
+			// TODO: followup on incrementing
+			if bytes.Compare(k, []byte("job1")) == 0 {
+				continue
+			}
 			v, err := item.Value()
 			if err != nil {
 				fmt.Println("error")
@@ -40,6 +49,7 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 			err = internal.UnmarshalJob(v, &job)
 			if err != nil {
 				fmt.Println("error unmarshalling")
+				fmt.Println(item, k, v)
 				fmt.Println(err)
 				continue
 			} else {
@@ -66,7 +76,7 @@ func (m *JobService) GetJobByID(jobID int) (server.Job, error) {
 // CreateJob adds a job to the db
 func (m *JobService) CreateJob(job *server.Job) error {
 	seq, err := m.client.db.GetSequence([]byte("job1"), 1)
-
+	defer seq.Release()
 	id, err := seq.Next()
 	if err != nil {
 		// TODO: handle error better
