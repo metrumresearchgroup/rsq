@@ -73,7 +73,16 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println(jobs)
+
+	fmt.Println("-------- job by id ---------")
+	job, err := js.GetJobByID(int64(1))
+	fmt.Println(job, err)
+
+	fmt.Println("-------- job by status ---------")
+	queuedJobs, err := js.GetJobsByStatus("QUEUED")
+	fmt.Println(queuedJobs, err)
+	queuedJobs, err = js.GetJobsByStatus("nonsense")
+	fmt.Println(queuedJobs, err)
 	return
 }
 
