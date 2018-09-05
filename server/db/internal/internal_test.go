@@ -19,6 +19,7 @@ func TestMarshalJob(t *testing.T) {
 			EndTime:   time.Now().AddDate(0, 0, 1).UTC(),
 			Error:     "no error",
 		},
+		Context: "interesting analysis 1",
 	}
 
 	var result server.Job

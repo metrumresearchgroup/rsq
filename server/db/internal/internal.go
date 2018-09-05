@@ -40,6 +40,7 @@ func MarshalJob(m *server.Job) ([]byte, error) {
 			EndTime:   endTime,
 			Error:     runDetails.Error,
 		},
+		Context: m.Context,
 	})
 }
 
@@ -77,6 +78,7 @@ func UnmarshalJob(data []byte, m *server.Job) error {
 		EndTime:   endTime,
 		Error:     runDetails.Error,
 	}
+	m.Context = pb.Context
 
 	return nil
 }
