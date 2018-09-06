@@ -21,12 +21,12 @@ func main() {
 	lg := logrus.New()
 	lg.SetLevel(logrus.DebugLevel)
 	jc := jobqueue.NewJobQueue(3, func(w server.Job) {
-		fmt.Printf("got update for work for job %v \n", w.ID)
+		fmt.Println(w)
 	})
-	jc.Push(server.Job{ID: 1})
-	jc.Push(server.Job{ID: 2})
-	jc.Push(server.Job{ID: 3})
-	jc.Push(server.Job{ID: 4})
+	jc.Push(server.Job{ID: uint64(1), Status: "QUEUED"})
+	jc.Push(server.Job{ID: uint64(2), Status: "QUEUED"})
+	jc.Push(server.Job{ID: uint64(3), Status: "QUEUED"})
+	jc.Push(server.Job{ID: uint64(4), Status: "QUEUED"})
 	// need to sleep or will exit before goroutines finish
 	time.Sleep(5 * time.Second)
 	return
@@ -91,7 +91,7 @@ func runJobCreationExamples(js server.JobService) {
 	}
 
 	fmt.Println("-------- job by id ---------")
-	job, err := js.GetJobByID(int64(1))
+	job, err := js.GetJobByID(uint64(1))
 	fmt.Println(job, err)
 
 	fmt.Println("-------- job by status ---------")

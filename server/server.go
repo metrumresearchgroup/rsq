@@ -34,7 +34,7 @@ type Client interface {
 type JobService interface {
 	GetJobs() ([]Job, error)
 	GetJobsByStatus(status string) ([]Job, error)
-	GetJobByID(jobID int64) (Job, error)
+	GetJobByID(jobID uint64) (Job, error)
 	CreateJob(m *Job) error
 	CreateJobs(job []Job) ([]Job, error)
 	AcquireNextQueuedJob() (Job, error)

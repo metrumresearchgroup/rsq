@@ -112,7 +112,7 @@ func (m *JobService) GetJobsByStatus(status string) ([]server.Job, error) {
 }
 
 // GetJobByID returns details about a specific Job
-func (m *JobService) GetJobByID(jobID int64) (server.Job, error) {
+func (m *JobService) GetJobByID(jobID uint64) (server.Job, error) {
 	var job server.Job
 	err := m.client.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
@@ -153,7 +153,7 @@ func (m *JobService) GetJobByID(jobID int64) (server.Job, error) {
 		}
 		return nil
 	})
-	if job.ID == int64(0) {
+	if job.ID == uint64(0) {
 		err = errors.New("job ID not found: " + strconv.Itoa(int((jobID))))
 	}
 	return job, err
@@ -172,7 +172,7 @@ func (m *JobService) CreateJob(job *server.Job) error {
 	// don't want to ever have a 0 id since makes it hard to tell
 	// if the db was actually storing the job, or if the job ID was
 	// set to default 0 value
-	job.ID = int64(id + 1)
+	job.ID = uint64(id + 1)
 	buf, err := internal.MarshalJob(job)
 	if err != nil {
 		fmt.Println("error marshalling")
@@ -208,6 +208,25 @@ func (m *JobService) AcquireNextQueuedJob() (server.Job, error) {
 
 // UpdateJob updates the job status
 func (m *JobService) UpdateJob(job *server.Job) error {
+	buf, err := internal.MarshalJob(job)
+	if err != nil {
+		fmt.Println("error marshalling")
+		return err
+	}
+	err = m.client.db.Update(func(txn *badger.Txn) error {
+		err = txn.Set(uint64ToBytes(job.ID-1), buf)
+		if err != nil {
+			// TODO: handle error
+			fmt.Println(err)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		// TODO: handle error better
+		fmt.Println(err)
+		return err
+	}
 	return nil
 }
 
