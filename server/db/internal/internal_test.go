@@ -11,7 +11,7 @@ import (
 
 func TestMarshalJob(t *testing.T) {
 	testJob := server.Job{
-		ID:     int64(1234),
+		ID:     uint64(1234),
 		Status: "COMPLETED",
 		RunDetails: server.RunDetails{
 			QueueTime: time.Now().AddDate(0, 0, -1).UTC(),
