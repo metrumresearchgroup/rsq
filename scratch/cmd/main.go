@@ -7,42 +7,25 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/metrumresearchgroup/rsq/jobqueue"
 	"github.com/metrumresearchgroup/rsq/runner"
 	"github.com/metrumresearchgroup/rsq/server"
-	"github.com/sirupsen/logrus"
-
 	"github.com/metrumresearchgroup/rsq/server/db"
 	"github.com/metrumresearchgroup/rsq/server/httpserver"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
 
 func main() {
-	appFS := afero.NewOsFs()
+	//appFS := afero.NewOsFs()
 	lg := logrus.New()
 	lg.SetLevel(logrus.DebugLevel)
-	client := db.NewClient()
-	wd, _ := os.Getwd()
-	badgerPath := filepath.Join(wd, "badger")
-	if _, err := os.Stat(badgerPath); os.IsNotExist(err) {
-		err := appFS.Mkdir(badgerPath, 0755)
-		if err != nil {
-			log.Fatalf("could not create folder for db %v", err)
-			os.Exit(1)
-		}
-	}
-	client.Path = badgerPath
-	err := client.Open()
-	defer client.Close()
-	if err != nil {
-		log.Fatalf("could not open db %v", err)
-		os.Exit(1)
-	}
-
-	js := client.JobService()
-	// fmt.Println("about to set job")
-	// fmt.Println(testJob)
-	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8999")
-
+	jc := jobqueue.NewJobQueue(3)
+	jc.Push(jobqueue.WorkRequest{JobID: int64(1)})
+	jc.Push(jobqueue.WorkRequest{JobID: int64(2)})
+	jc.Push(jobqueue.WorkRequest{JobID: int64(3)})
+	jc.Push(jobqueue.WorkRequest{JobID: int64(4)})
+	jc.Push(jobqueue.WorkRequest{JobID: int64(5)})
 	return
 }
 
@@ -113,4 +96,30 @@ func runJobCreationExamples(js server.JobService) {
 	fmt.Println(queuedJobs, err)
 	queuedJobs, err = js.GetJobsByStatus("nonsense")
 	fmt.Println(queuedJobs, err)
+}
+
+func jobServer(appFS afero.Fs) {
+	client := db.NewClient()
+	wd, _ := os.Getwd()
+	badgerPath := filepath.Join(wd, "badger")
+	if _, err := os.Stat(badgerPath); os.IsNotExist(err) {
+		err := appFS.Mkdir(badgerPath, 0755)
+		if err != nil {
+			log.Fatalf("could not create folder for db %v", err)
+			os.Exit(1)
+		}
+	}
+	client.Path = badgerPath
+	err := client.Open()
+	defer client.Close()
+	if err != nil {
+		log.Fatalf("could not open db %v", err)
+		os.Exit(1)
+	}
+
+	js := client.JobService()
+	// fmt.Println("about to set job")
+	// fmt.Println(testJob)
+	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8999")
+	return
 }
