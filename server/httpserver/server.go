@@ -11,7 +11,7 @@ import (
 
 // NewHTTPServer provides a new http server
 func NewHTTPServer(js server.JobService, version string, port string) {
-	httpClient := NewJobHandler(js)
+	httpClient := NewJobHandler(js, 8)
 	r := chi.NewRouter()
 
 	// A good base middleware stack

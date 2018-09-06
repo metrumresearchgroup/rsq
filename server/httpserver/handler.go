@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/metrumresearchgroup/rsq/jobqueue"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/metrumresearchgroup/rsq/server"
@@ -25,12 +27,16 @@ const (
 // JobHandler represents the HTTP API handler for JobService
 type JobHandler struct {
 	JobService server.JobService
+	Queue      jobqueue.JobQueue
 }
 
 // NewJobHandler provides a pointer to a new httpClient
-func NewJobHandler(js server.JobService) *JobHandler {
+func NewJobHandler(js server.JobService, n int) *JobHandler {
 	return &JobHandler{
 		JobService: js,
+		Queue: jobqueue.NewJobQueue(n, func(j jobqueue.WorkRequest) {
+			return
+		}),
 	}
 }
 
@@ -84,6 +90,7 @@ func (c *JobHandler) HandleSubmitJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := c.JobService.CreateJob(&job)
+	c.Queue.Push(jobqueue.WorkRequest{JobID: job.ID})
 	if err != nil {
 		fmt.Printf("Insertion of jobs failed with err: %v", err)
 	}
