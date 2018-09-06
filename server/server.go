@@ -40,6 +40,7 @@ type Job struct {
 	Context string
 	Rscript Rscript
 	Result  Result
+	User    string
 }
 
 // Client creates a connection to services
