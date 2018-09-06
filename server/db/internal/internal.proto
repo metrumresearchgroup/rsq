@@ -12,8 +12,10 @@ message RunDetails {
 }
 
 message RScript {
-    string rscript_path = 1;
-    repeated string renv = 3;
+    string r_path = 1;
+    string work_dir = 2;
+    string rscript_path = 3;
+    map<string, string> renv = 4;
 }
 
 message RScriptResult {
