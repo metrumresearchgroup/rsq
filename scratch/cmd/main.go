@@ -135,6 +135,6 @@ func jobServer(appFS afero.Fs, lg *logrus.Logger) {
 	js := client.JobService()
 	// fmt.Println("about to set job")
 	// fmt.Println(testJob)
-	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8999", 2, lg)
+	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8950", 2, lg)
 	return
 }
