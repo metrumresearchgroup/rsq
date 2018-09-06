@@ -20,14 +20,15 @@ func main() {
 	//appFS := afero.NewOsFs()
 	lg := logrus.New()
 	lg.SetLevel(logrus.DebugLevel)
-	jc := jobqueue.NewJobQueue(3, func(w jobqueue.WorkRequest) {
-		fmt.Printf("got update for work for job %v \n", w.JobID)
+	jc := jobqueue.NewJobQueue(3, func(w server.Job) {
+		fmt.Printf("got update for work for job %v \n", w.ID)
 	})
-	jc.Push(jobqueue.WorkRequest{JobID: int64(1)})
-	jc.Push(jobqueue.WorkRequest{JobID: int64(2)})
-	jc.Push(jobqueue.WorkRequest{JobID: int64(3)})
-	jc.Push(jobqueue.WorkRequest{JobID: int64(4)})
-	jc.Push(jobqueue.WorkRequest{JobID: int64(5)})
+	jc.Push(server.Job{ID: 1})
+	jc.Push(server.Job{ID: 2})
+	jc.Push(server.Job{ID: 3})
+	jc.Push(server.Job{ID: 4})
+	// need to sleep or will exit before goroutines finish
+	time.Sleep(5 * time.Second)
 	return
 }
 

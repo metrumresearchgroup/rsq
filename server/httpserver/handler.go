@@ -34,7 +34,7 @@ type JobHandler struct {
 func NewJobHandler(js server.JobService, n int) *JobHandler {
 	return &JobHandler{
 		JobService: js,
-		Queue: jobqueue.NewJobQueue(n, func(j jobqueue.WorkRequest) {
+		Queue: jobqueue.NewJobQueue(n, func(j server.Job) {
 			return
 		}),
 	}
@@ -90,7 +90,7 @@ func (c *JobHandler) HandleSubmitJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := c.JobService.CreateJob(&job)
-	c.Queue.Push(jobqueue.WorkRequest{JobID: job.ID})
+	c.Queue.Push(job)
 	if err != nil {
 		fmt.Printf("Insertion of jobs failed with err: %v", err)
 	}
