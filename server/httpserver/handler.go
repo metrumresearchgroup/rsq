@@ -35,7 +35,7 @@ func NewJobHandler(js server.JobService, n int) *JobHandler {
 	return &JobHandler{
 		JobService: js,
 		Queue: jobqueue.NewJobQueue(n, func(j server.Job) {
-			return
+			js.UpdateJob(&j)
 		}),
 	}
 }
@@ -71,7 +71,7 @@ func (c *JobHandler) HandleGetJobByID(w http.ResponseWriter, r *http.Request) {
 func (c *JobHandler) JobCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		jobID := chi.URLParam(r, "jobID")
-		mid, _ := strconv.ParseInt(jobID, 10, 64)
+		mid, _ := strconv.ParseUint(jobID, 10, 64)
 		job, err := c.JobService.GetJobByID(mid)
 		if err != nil {
 			http.Error(w, http.StatusText(404), 404)
