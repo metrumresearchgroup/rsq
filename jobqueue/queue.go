@@ -2,6 +2,7 @@ package jobqueue
 
 import (
 	"fmt"
+	"time"
 )
 
 // WorkRequest encapsulates the job requested to be run
@@ -9,14 +10,12 @@ type WorkRequest struct {
 	JobID int64
 }
 
-//WorkQueue is a global
-//var WorkQueue = make(chan WorkRequest)
-
 // Worker does work
 type Worker struct {
-	ID        int
-	WorkQueue chan WorkRequest
-	Quit      chan bool
+	ID          int
+	WorkQueue   chan WorkRequest
+	UpdateQueue chan WorkRequest
+	Quit        chan bool
 }
 
 // Start starts a worker
@@ -28,6 +27,8 @@ func (w *Worker) Start() {
 			case work := <-w.WorkQueue:
 				// Receive a work request.
 				fmt.Printf("worker%d: Getting Job, %v!\n", w.ID, work.JobID)
+				time.Sleep(time.Duration(1 * time.Second))
+				w.UpdateQueue <- work
 
 			case <-w.Quit:
 				// We have been asked to stop.
@@ -49,29 +50,41 @@ func (w *Worker) Stop() {
 
 // JobQueue represents a new job queue
 type JobQueue struct {
-	WorkQueue chan WorkRequest
-	Workers   []Worker
+	WorkQueue   chan WorkRequest
+	UpdateQueue chan WorkRequest
+	Workers     []Worker
 }
 
 // NewJobQueue provides a new Job queue with a number of workers
-func (j *JobQueue) NewJobQueue(n int) JobQueue {
+func NewJobQueue(n int, updateFunc func(WorkRequest)) JobQueue {
 	wrc := make(chan WorkRequest)
+	uq := make(chan WorkRequest)
 	jc := JobQueue{
-		WorkQueue: wrc,
+		WorkQueue:   wrc,
+		UpdateQueue: uq,
 	}
 	for i := 0; i < n; i++ {
 		jc.RegisterNewWorker(i + 1)
 	}
+	go jc.HandleUpdates(updateFunc)
 	return jc
+}
+
+// HandleUpdates handles updates
+func (j *JobQueue) HandleUpdates(fn func(WorkRequest)) {
+	for {
+		fn(<-j.UpdateQueue)
+	}
 }
 
 // RegisterNewWorker registers new workers
 func (j *JobQueue) RegisterNewWorker(id int) {
 	// Create, and return the worker.
 	worker := Worker{
-		ID:        id,
-		WorkQueue: j.WorkQueue,
-		Quit:      make(chan bool),
+		ID:          id,
+		WorkQueue:   j.WorkQueue,
+		UpdateQueue: j.UpdateQueue,
+		Quit:        make(chan bool),
 	}
 	worker.Start()
 	j.Workers = append(j.Workers, worker)
