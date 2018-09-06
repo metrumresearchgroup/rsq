@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/metrumresearchgroup/rsq/jobqueue"
 	"github.com/metrumresearchgroup/rsq/runner"
 	"github.com/metrumresearchgroup/rsq/server"
 	"github.com/metrumresearchgroup/rsq/server/db"
@@ -17,18 +16,31 @@ import (
 )
 
 func main() {
-	//appFS := afero.NewOsFs()
+	appFS := afero.NewOsFs()
 	lg := logrus.New()
 	lg.SetLevel(logrus.DebugLevel)
-	jc := jobqueue.NewJobQueue(3, func(w server.Job) {
-		fmt.Println(w)
-	})
-	jc.Push(server.Job{ID: uint64(1), Status: "QUEUED"})
-	jc.Push(server.Job{ID: uint64(2), Status: "QUEUED"})
-	jc.Push(server.Job{ID: uint64(3), Status: "QUEUED"})
-	jc.Push(server.Job{ID: uint64(4), Status: "QUEUED"})
-	// need to sleep or will exit before goroutines finish
-	time.Sleep(5 * time.Second)
+	// jc := jobqueue.NewJobQueue(3, func(w server.Job) {
+	// 	fmt.Println(w)
+	// })
+	// jc.Push(server.Job{ID: uint64(1), Status: "QUEUED"})
+	// jc.Push(server.Job{ID: uint64(2), Status: "QUEUED"})
+	// jc.Push(server.Job{ID: uint64(3), Status: "QUEUED"})
+	// jc.Push(server.Job{ID: uint64(4), Status: "QUEUED"})
+	// // need to sleep or will exit before goroutines finish
+	// time.Sleep(5 * time.Second)
+	// testJob := server.Job{
+	// 	Status: "COMPLETED",
+	// 	RunDetails: server.RunDetails{
+	// 		QueueTime: time.Now().AddDate(0, 0, -1).UTC(),
+	// 		StartTime: time.Now().AddDate(0, 0, 0).UTC(),
+	// 		EndTime:   time.Now().AddDate(0, 0, 1).UTC(),
+	// 		Error:     "no error",
+	// 	},
+	// 	Context: "interesting job1",
+	// }
+	// jsres, _ := json.Marshal(testJob)
+	// fmt.Println(string(jsres))
+	jobServer(appFS)
 	return
 }
 
@@ -123,6 +135,6 @@ func jobServer(appFS afero.Fs) {
 	js := client.JobService()
 	// fmt.Println("about to set job")
 	// fmt.Println(testJob)
-	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8999")
+	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8999", 2)
 	return
 }

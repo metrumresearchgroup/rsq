@@ -29,10 +29,13 @@ func (w *Worker) Start() {
 			case work := <-w.WorkQueue:
 				// Receive a work request.
 				fmt.Printf("worker%d: Getting Job, %v!\n", w.ID, work.ID)
-				time.Sleep(time.Duration(1 * time.Second / 5))
 				work.Status = "RUNNING"
 				w.UpdateQueue <- work
+				time.Sleep(time.Duration(10 * time.Second))
+				fmt.Printf("worker%d: completed Job, %v!\n", w.ID, work.ID)
 				work.Status = "COMPLETED"
+				work.Result.ExitCode = 0
+				work.Result.Output = "success!"
 				w.UpdateQueue <- work
 
 			case <-w.Quit:
@@ -62,8 +65,8 @@ type JobQueue struct {
 
 // NewJobQueue provides a new Job queue with a number of workers
 func NewJobQueue(n int, updateFunc func(server.Job)) JobQueue {
-	wrc := make(chan server.Job)
-	uq := make(chan server.Job)
+	wrc := make(chan server.Job, 200)
+	uq := make(chan server.Job, 5)
 	jc := JobQueue{
 		WorkQueue:   wrc,
 		UpdateQueue: uq,

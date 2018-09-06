@@ -90,7 +90,9 @@ func (c *JobHandler) HandleSubmitJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err := c.JobService.CreateJob(&job)
+	fmt.Printf("about to push job %v", job.ID)
 	c.Queue.Push(job)
+	fmt.Printf("pushed job %v", job.ID)
 	if err != nil {
 		fmt.Printf("Insertion of jobs failed with err: %v", err)
 	}
