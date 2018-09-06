@@ -43,6 +43,16 @@ func MarshalJob(m *server.Job) ([]byte, error) {
 			Error:     runDetails.Error,
 		},
 		Context: m.Context,
+		Result: &RscriptResult{
+			Output:   m.Result.Output,
+			ExitCode: m.Result.ExitCode,
+		},
+		Rscript: &Rscript{
+			RPath:       m.Rscript.RPath,
+			WorkDir:     m.Rscript.WorkDir,
+			RscriptPath: m.Rscript.RscriptPath,
+			Renv:        m.Rscript.Renv,
+		},
 	})
 }
 
@@ -81,6 +91,16 @@ func UnmarshalJob(data []byte, m *server.Job) error {
 		Error:     runDetails.Error,
 	}
 	m.Context = pb.Context
+	m.Result = server.Result{
+		Output:   pb.Result.Output,
+		ExitCode: pb.Result.ExitCode,
+	}
+	m.Rscript = server.Rscript{
+		RPath:       pb.Rscript.RPath,
+		WorkDir:     pb.Rscript.WorkDir,
+		RscriptPath: pb.Rscript.RscriptPath,
+		Renv:        pb.Rscript.Renv,
+	}
 
 	return nil
 }

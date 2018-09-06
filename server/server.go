@@ -3,7 +3,7 @@ package server
 import "time"
 
 // RScript contains information needed to run an Rscript
-type RScript struct {
+type Rscript struct {
 	RPath       string            `json:"r_path,omitempty"`
 	WorkDir     string            `json:"work_dir,omitempty"`
 	RscriptPath string            `json:"rscript_path,omitempty"`
@@ -37,6 +37,8 @@ type Job struct {
 	RunDetails RunDetails
 	// some information about the job like the title
 	Context string
+	Rscript Rscript
+	Result  Result
 }
 
 // Client creates a connection to services

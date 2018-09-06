@@ -20,6 +20,16 @@ func TestMarshalJob(t *testing.T) {
 			Error:     "no error",
 		},
 		Context: "interesting analysis 1",
+		Rscript: server.Rscript{
+			RPath:       "R",
+			WorkDir:     "/some/dir",
+			RscriptPath: "/some/dir/script.R",
+			Renv:        map[string]string{"R_SITE_LIB": "/some/R/path"},
+		},
+		Result: server.Result{
+			Output:   "some awesome output",
+			ExitCode: 1,
+		},
 	}
 
 	var result server.Job
