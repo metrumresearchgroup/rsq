@@ -64,13 +64,13 @@ func RunR(
 	return cmd.Run()
 }
 
-// RunR launches an interactive R console
+// RunRscript launches an interactive R console
 func RunRscript(
 	fs afero.Fs,
 	rs RSettings,
 	es ExecSettings,
 	lg *logrus.Logger,
-) error {
+) (string, error) {
 
 	cmdArgs := []string{
 		"--no-save",
@@ -145,5 +145,5 @@ func RunRscript(
 			"stderr":   stderr,
 			"exitCode": exitCode,
 		}).Info("cmd output")
-	return err
+	return stdout, err
 }
