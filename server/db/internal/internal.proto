@@ -39,4 +39,5 @@ message Job {
     string context = 4;
     Rscript rscript = 5;
     RscriptResult result = 6;
+    string user = 7;
 }
