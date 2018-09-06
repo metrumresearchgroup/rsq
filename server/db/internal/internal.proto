@@ -12,10 +12,17 @@ message RunDetails {
 }
 
 message RScript {
-    string rscript = 1;
-    string rdata = 2;
+    string rscript_path = 1;
+    string rdata_path = 2;
     repeated string renv = 3;
 }
+
+message RScriptResult {
+    string output = 1;
+    int32 exit_code = 2;
+    string rdata_path = 3;
+}
+
 
 message Job {
     uint64 id = 1;
@@ -31,4 +38,5 @@ message Job {
     RunDetails run_details = 3; 
     string context = 4;
     RScript rscript = 5;
+    RScriptResult result = 6;
 }
