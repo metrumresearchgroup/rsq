@@ -2,6 +2,20 @@ package server
 
 import "time"
 
+// Rscript contains information needed to run an Rscript
+type Rscript struct {
+	RPath       string            `json:"r_path,omitempty"`
+	WorkDir     string            `json:"work_dir,omitempty"`
+	RscriptPath string            `json:"rscript_path,omitempty"`
+	Renv        map[string]string `json:"renv,omitempty"`
+}
+
+// Result stores the results from Rscript
+type Result struct {
+	Output   string `json:"output,omitempty"`
+	ExitCode int32  `json:"exit_code,omitempty"`
+}
+
 // RunDetails stores details about a script being run
 // Queue time represents the time a request was added to the Queue
 // StartTime is the time the worker starts execution of the code for processing steps
