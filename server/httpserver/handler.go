@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/metrumresearchgroup/rsq/jobqueue"
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -28,15 +29,17 @@ const (
 type JobHandler struct {
 	JobService server.JobService
 	Queue      jobqueue.JobQueue
+	Logger     *logrus.Logger
 }
 
 // NewJobHandler provides a pointer to a new httpClient
-func NewJobHandler(js server.JobService, n int) *JobHandler {
+func NewJobHandler(js server.JobService, n int, lg *logrus.Logger) *JobHandler {
 	return &JobHandler{
+		Logger:     lg,
 		JobService: js,
 		Queue: jobqueue.NewJobQueue(n, func(j server.Job) {
 			js.UpdateJob(&j)
-		}),
+		}, lg),
 	}
 }
 

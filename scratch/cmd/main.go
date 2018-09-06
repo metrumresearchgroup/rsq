@@ -40,7 +40,7 @@ func main() {
 	// }
 	// jsres, _ := json.Marshal(testJob)
 	// fmt.Println(string(jsres))
-	jobServer(appFS)
+	jobServer(appFS, lg)
 	return
 }
 
@@ -113,7 +113,7 @@ func runJobCreationExamples(js server.JobService) {
 	fmt.Println(queuedJobs, err)
 }
 
-func jobServer(appFS afero.Fs) {
+func jobServer(appFS afero.Fs, lg *logrus.Logger) {
 	client := db.NewClient()
 	wd, _ := os.Getwd()
 	badgerPath := filepath.Join(wd, "badger")
@@ -135,6 +135,6 @@ func jobServer(appFS afero.Fs) {
 	js := client.JobService()
 	// fmt.Println("about to set job")
 	// fmt.Println(testJob)
-	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8999", 2)
+	httpserver.NewHTTPServer(js, "0.0.1-alpha", "8999", 2, lg)
 	return
 }

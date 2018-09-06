@@ -1,10 +1,12 @@
 package jobqueue
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/metrumresearchgroup/rsq/runner"
 	"github.com/metrumresearchgroup/rsq/server"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 )
 
 // WorkRequest encapsulates the job requested to be run
@@ -21,18 +23,36 @@ type Worker struct {
 }
 
 // Start starts a worker
-func (w *Worker) Start() {
-	fmt.Printf("starting worker %v \n", w.ID)
+func (w *Worker) Start(lg *logrus.Logger) {
+	lg.Infof("starting worker %v \n", w.ID)
 	go func() {
+		appFS := afero.NewOsFs()
 		for {
 			select {
 			case work := <-w.WorkQueue:
 				// Receive a work request.
-				fmt.Printf("worker%d: Getting Job, %v!\n", w.ID, work.ID)
+				lg.WithFields(logrus.Fields{
+					"WID": w.ID,
+					"JID": work.ID,
+				}).Debug("getting job")
+				rs := runner.RSettings{
+					Rpath:   work.Rscript.RPath,
+					EnvVars: work.Rscript.Renv,
+				}
+				es := runner.ExecSettings{
+					WorkDir: work.Rscript.WorkDir,
+					Rfile:   work.Rscript.RscriptPath,
+				}
 				work.Status = "RUNNING"
+				work.RunDetails.StartTime = time.Now().UTC()
 				w.UpdateQueue <- work
-				time.Sleep(time.Duration(10 * time.Second))
-				fmt.Printf("worker%d: completed Job, %v!\n", w.ID, work.ID)
+				runner.RunRscript(appFS, rs, es, lg)
+				work.RunDetails.EndTime = time.Now().UTC()
+				lg.WithFields(logrus.Fields{
+					"WID":      w.ID,
+					"JID":      work.ID,
+					"Duration": work.RunDetails.EndTime.Sub(work.RunDetails.StartTime),
+				}).Debug("completed job")
 				work.Status = "COMPLETED"
 				work.Result.ExitCode = 0
 				work.Result.Output = "success!"
@@ -40,7 +60,7 @@ func (w *Worker) Start() {
 
 			case <-w.Quit:
 				// We have been asked to stop.
-				fmt.Printf("worker%d stopping\n", w.ID)
+				lg.Printf("worker%d stopping\n", w.ID)
 				return
 			}
 		}
@@ -64,7 +84,7 @@ type JobQueue struct {
 }
 
 // NewJobQueue provides a new Job queue with a number of workers
-func NewJobQueue(n int, updateFunc func(server.Job)) JobQueue {
+func NewJobQueue(n int, updateFunc func(server.Job), lg *logrus.Logger) JobQueue {
 	wrc := make(chan server.Job, 200)
 	uq := make(chan server.Job, 5)
 	jc := JobQueue{
@@ -72,7 +92,7 @@ func NewJobQueue(n int, updateFunc func(server.Job)) JobQueue {
 		UpdateQueue: uq,
 	}
 	for i := 0; i < n; i++ {
-		jc.RegisterNewWorker(i + 1)
+		jc.RegisterNewWorker(i+1, lg)
 	}
 	go jc.HandleUpdates(updateFunc)
 	return jc
@@ -86,7 +106,7 @@ func (j *JobQueue) HandleUpdates(fn func(server.Job)) {
 }
 
 // RegisterNewWorker registers new workers
-func (j *JobQueue) RegisterNewWorker(id int) {
+func (j *JobQueue) RegisterNewWorker(id int, lg *logrus.Logger) {
 	// Create, and return the worker.
 	worker := Worker{
 		ID:          id,
@@ -94,7 +114,7 @@ func (j *JobQueue) RegisterNewWorker(id int) {
 		UpdateQueue: j.UpdateQueue,
 		Quit:        make(chan bool),
 	}
-	worker.Start()
+	worker.Start(lg)
 	j.Workers = append(j.Workers, worker)
 	return
 }

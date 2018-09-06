@@ -7,11 +7,12 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/metrumresearchgroup/rsq/server"
+	"github.com/sirupsen/logrus"
 )
 
 // NewHTTPServer provides a new http server
-func NewHTTPServer(js server.JobService, version string, port string, n int) {
-	httpClient := NewJobHandler(js, n)
+func NewHTTPServer(js server.JobService, version string, port string, n int, lg *logrus.Logger) {
+	httpClient := NewJobHandler(js, n, lg)
 	r := chi.NewRouter()
 
 	// A good base middleware stack
