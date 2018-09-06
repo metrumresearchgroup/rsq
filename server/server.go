@@ -2,8 +2,8 @@ package server
 
 import "time"
 
-// Rscript contains information needed to run an Rscript
-type Rscript struct {
+// RScript contains information needed to run an Rscript
+type RScript struct {
 	RPath       string            `json:"r_path,omitempty"`
 	WorkDir     string            `json:"work_dir,omitempty"`
 	RscriptPath string            `json:"rscript_path,omitempty"`
