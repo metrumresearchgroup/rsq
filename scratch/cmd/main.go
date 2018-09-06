@@ -76,6 +76,7 @@ func runJobCreationExamples(js server.JobService) {
 			EndTime:   time.Now().AddDate(0, 0, 1).UTC(),
 			Error:     "no error",
 		},
+		Context: "interesting job1",
 	}
 	testJob2 := server.Job{
 		Status: "QUEUED",
@@ -85,6 +86,7 @@ func runJobCreationExamples(js server.JobService) {
 			EndTime:   time.Now().AddDate(0, 0, 1).UTC(),
 			Error:     "no error",
 		},
+		Context: "another curious job",
 	}
 	err := js.CreateJob(&testJob)
 	err = js.CreateJob(&testJob2)
