@@ -11,6 +11,12 @@ message RunDetails {
     string error = 4;
 }
 
+message RScript {
+    string rscript = 1;
+    string rdata = 2;
+    repeated string renv = 3;
+}
+
 message Job {
     uint64 id = 1;
 
@@ -24,4 +30,5 @@ message Job {
     StatusType status = 2;
     RunDetails run_details = 3; 
     string context = 4;
+    RScript rscript = 5;
 }
