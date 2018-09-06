@@ -10,8 +10,8 @@ import (
 )
 
 // NewHTTPServer provides a new http server
-func NewHTTPServer(js server.JobService, version string, port string) {
-	httpClient := NewJobHandler(js, 8)
+func NewHTTPServer(js server.JobService, version string, port string, n int) {
+	httpClient := NewJobHandler(js, n)
 	r := chi.NewRouter()
 
 	// A good base middleware stack
