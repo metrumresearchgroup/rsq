@@ -12,8 +12,9 @@ type Rscript struct {
 
 // Result stores the results from Rscript
 type Result struct {
-	Output   string `json:"output,omitempty"`
-	ExitCode int32  `json:"exit_code,omitempty"`
+	Output string `json:"output,omitempty"`
+	// cant omit empty as zero gets stripped
+	ExitCode int32 `json:"exit_code"`
 }
 
 // RunDetails stores details about a script being run
