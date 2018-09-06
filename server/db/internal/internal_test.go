@@ -13,6 +13,7 @@ func TestMarshalJob(t *testing.T) {
 	testJob := server.Job{
 		ID:     uint64(1234),
 		Status: "COMPLETED",
+		User:   "Ola",
 		RunDetails: server.RunDetails{
 			QueueTime: time.Now().AddDate(0, 0, -1).UTC(),
 			StartTime: time.Now().AddDate(0, 0, 0).UTC(),
