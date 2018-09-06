@@ -29,7 +29,10 @@ func (w *Worker) Start() {
 			case work := <-w.WorkQueue:
 				// Receive a work request.
 				fmt.Printf("worker%d: Getting Job, %v!\n", w.ID, work.ID)
-				time.Sleep(time.Duration(1 * time.Second))
+				time.Sleep(time.Duration(1 * time.Second / 5))
+				work.Status = "RUNNING"
+				w.UpdateQueue <- work
+				work.Status = "COMPLETED"
 				w.UpdateQueue <- work
 
 			case <-w.Quit:
