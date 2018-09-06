@@ -20,7 +20,9 @@ func main() {
 	//appFS := afero.NewOsFs()
 	lg := logrus.New()
 	lg.SetLevel(logrus.DebugLevel)
-	jc := jobqueue.NewJobQueue(3)
+	jc := jobqueue.NewJobQueue(3, func(w jobqueue.WorkRequest) {
+		fmt.Printf("got update for work for job %v \n", w.JobID)
+	})
 	jc.Push(jobqueue.WorkRequest{JobID: int64(1)})
 	jc.Push(jobqueue.WorkRequest{JobID: int64(2)})
 	jc.Push(jobqueue.WorkRequest{JobID: int64(3)})
