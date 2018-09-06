@@ -3,6 +3,8 @@ package jobqueue
 import (
 	"fmt"
 	"time"
+
+	"github.com/metrumresearchgroup/rsq/server"
 )
 
 // WorkRequest encapsulates the job requested to be run
@@ -13,8 +15,8 @@ type WorkRequest struct {
 // Worker does work
 type Worker struct {
 	ID          int
-	WorkQueue   chan WorkRequest
-	UpdateQueue chan WorkRequest
+	WorkQueue   <-chan server.Job
+	UpdateQueue chan<- server.Job
 	Quit        chan bool
 }
 
@@ -26,7 +28,7 @@ func (w *Worker) Start() {
 			select {
 			case work := <-w.WorkQueue:
 				// Receive a work request.
-				fmt.Printf("worker%d: Getting Job, %v!\n", w.ID, work.JobID)
+				fmt.Printf("worker%d: Getting Job, %v!\n", w.ID, work.ID)
 				time.Sleep(time.Duration(1 * time.Second))
 				w.UpdateQueue <- work
 
@@ -50,15 +52,15 @@ func (w *Worker) Stop() {
 
 // JobQueue represents a new job queue
 type JobQueue struct {
-	WorkQueue   chan WorkRequest
-	UpdateQueue chan WorkRequest
+	WorkQueue   chan server.Job
+	UpdateQueue chan server.Job
 	Workers     []Worker
 }
 
 // NewJobQueue provides a new Job queue with a number of workers
-func NewJobQueue(n int, updateFunc func(WorkRequest)) JobQueue {
-	wrc := make(chan WorkRequest)
-	uq := make(chan WorkRequest)
+func NewJobQueue(n int, updateFunc func(server.Job)) JobQueue {
+	wrc := make(chan server.Job)
+	uq := make(chan server.Job)
 	jc := JobQueue{
 		WorkQueue:   wrc,
 		UpdateQueue: uq,
@@ -71,7 +73,7 @@ func NewJobQueue(n int, updateFunc func(WorkRequest)) JobQueue {
 }
 
 // HandleUpdates handles updates
-func (j *JobQueue) HandleUpdates(fn func(WorkRequest)) {
+func (j *JobQueue) HandleUpdates(fn func(server.Job)) {
 	for {
 		fn(<-j.UpdateQueue)
 	}
@@ -92,6 +94,6 @@ func (j *JobQueue) RegisterNewWorker(id int) {
 }
 
 // Push adds work to the JobQueue
-func (j *JobQueue) Push(w WorkRequest) {
+func (j *JobQueue) Push(w server.Job) {
 	j.WorkQueue <- w
 }
