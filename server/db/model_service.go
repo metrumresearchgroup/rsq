@@ -214,6 +214,7 @@ func (m *JobService) UpdateJob(job *server.Job) error {
 		return err
 	}
 	err = m.client.db.Update(func(txn *badger.Txn) error {
+		// job id is one less than key since never want key of 0
 		err = txn.Set(uint64ToBytes(job.ID-1), buf)
 		if err != nil {
 			// TODO: handle error
