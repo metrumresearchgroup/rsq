@@ -65,8 +65,11 @@ func init() {
 	RootCmd.PersistentFlags().String("libpaths", "", "library paths, colon separated list")
 	viper.BindPFlag("libpaths", RootCmd.PersistentFlags().Lookup("libpaths"))
 
-	RootCmd.PersistentFlags().Int("threads", 0, "number of threads to execute with")
-	viper.BindPFlag("threads", RootCmd.PersistentFlags().Lookup("threads"))
+	RootCmd.PersistentFlags().Int("workers", 0, "number of workers to execute with")
+	viper.BindPFlag("workers", RootCmd.PersistentFlags().Lookup("workers"))
+
+	RootCmd.PersistentFlags().String("port", "", "port number")
+	viper.BindPFlag("port", RootCmd.PersistentFlags().Lookup("port"))
 
 	RootCmd.PersistentFlags().Bool("debug", false, "use debug mode")
 	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
@@ -113,14 +116,6 @@ func initConfig() {
 	if viper.GetBool("debug") {
 		viper.Debug()
 	}
-}
-
-func expand(s string) string {
-	if strings.HasPrefix(s, "~/") {
-		return filepath.Join(os.Getenv("HOME"), s[1:])
-	}
-
-	return s
 }
 
 func logIfNonZero(lg *logrus.Logger, s []string, lvl string) error {

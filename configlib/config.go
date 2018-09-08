@@ -62,10 +62,25 @@ func loadDefaultSettings() {
 	viper.SetDefault("loglevel", "info")
 	// path to R on system, defaults to R in path
 	viper.SetDefault("rpath", "R")
-	viper.SetDefault("threads", runtime.NumCPU())
+	viper.SetDefault("port", "8950")
+	viper.SetDefault("workers", runtime.NumCPU()-1)
+	// badger recommends many procs
+	viper.SetDefault("gomaxprocs", max(runtime.NumCPU()+10, 20))
 
 }
 
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
 func expand(s string) string {
 	if strings.HasPrefix(s, "~/") {
 		return filepath.Join(os.Getenv("HOME"), s[1:])
