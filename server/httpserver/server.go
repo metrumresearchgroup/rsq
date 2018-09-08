@@ -55,7 +55,7 @@ func NewHTTPServer(js server.JobService, version string, port string, n int, lg 
 		r.Get("/", httpClient.HandleGetJobsByStatus)
 	})
 
-	fmt.Println(fmt.Sprintf("serving now on %v", port))
+	lg.Info(fmt.Sprintf("rsq listening on %v", port))
 	http.ListenAndServe(fmt.Sprintf(":%v", port), r)
 }
 
