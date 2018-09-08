@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/metrumresearchgroup/rsq/jobqueue"
 	"github.com/sirupsen/logrus"
@@ -89,15 +90,20 @@ func (c *JobHandler) JobCtx(next http.Handler) http.Handler {
 func (c *JobHandler) HandleSubmitJob(w http.ResponseWriter, r *http.Request) {
 	var job server.Job
 	if err := render.DecodeJSON(r.Body, &job); err != nil {
+		c.Logger.WithFields(logrus.Fields{
+			"body": r.Body,
+			"err": err,
+		}).Warn("Decoding JSON from job submission failed")
 		render.JSON(w, r, err.Error())
 		return
 	}
+	job.RunDetails.QueueTime = time.Now().UTC()
 	err := c.JobService.CreateJob(&job)
-	fmt.Printf("about to push job %v", job.ID)
 	c.Queue.Push(job)
-	fmt.Printf("pushed job %v", job.ID)
 	if err != nil {
-		fmt.Printf("Insertion of jobs failed with err: %v", err)
+		c.Logger.WithFields(logrus.Fields{
+			"err": err,
+		}).Warn("Insertion of jobs failed")
 	}
 	render.JSON(w, r, job)
 }
