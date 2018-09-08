@@ -17,8 +17,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
@@ -65,11 +63,6 @@ func init() {
 	RootCmd.PersistentFlags().String("libpaths", "", "library paths, colon separated list")
 	viper.BindPFlag("libpaths", RootCmd.PersistentFlags().Lookup("libpaths"))
 
-	RootCmd.PersistentFlags().Int("workers", 0, "number of workers to execute with")
-	viper.BindPFlag("workers", RootCmd.PersistentFlags().Lookup("workers"))
-
-	RootCmd.PersistentFlags().String("port", "", "port number")
-	viper.BindPFlag("port", RootCmd.PersistentFlags().Lookup("port"))
 
 	RootCmd.PersistentFlags().Bool("debug", false, "use debug mode")
 	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
