@@ -15,7 +15,13 @@
 package cmd
 
 import (
+	"os"
+	"path/filepath"
+
+	"github.com/metrumresearchgroup/rsq/server/db"
+	"github.com/metrumresearchgroup/rsq/server/httpserver"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var startCmd = &cobra.Command{
@@ -28,9 +34,42 @@ var startCmd = &cobra.Command{
 }
 
 func start(cmd *cobra.Command, args []string) error {
+	client := db.NewClient()
+	dbpath, _ := os.Getwd()
+	if viper.GetString("dbpath") != "" {
+		dbpath = viper.GetString("dbpath")
+	}
+	badgerPath := filepath.Join(dbpath, "badger")
+	if _, err := os.Stat(badgerPath); os.IsNotExist(err) {
+		err := fs.MkdirAll(badgerPath, 0755)
+		if err != nil {
+			log.Fatalf("could not create folder for db %v", err)
+			os.Exit(1)
+		}
+	}
+	client.Path = badgerPath
+	err := client.Open()
+	defer client.Close()
+	if err != nil {
+		log.Fatalf("could not open db %v", err)
+		os.Exit(1)
+	}
+
+	js := client.JobService()
+	// fmt.Println("about to set job")
+	// fmt.Println(testJob)
+	httpserver.NewHTTPServer(js, VERSION, viper.GetString("port"), viper.GetInt("workers"), log)
 	return nil
 }
 
 func init() {
-	RootCmd.AddCommand(summaryCmd)
+	startCmd.PersistentFlags().Int("workers", 0, "number of workers to execute with")
+	viper.BindPFlag("workers", startCmd.PersistentFlags().Lookup("workers"))
+
+	startCmd.PersistentFlags().String("port", "", "port number")
+	viper.BindPFlag("port", startCmd.PersistentFlags().Lookup("port"))
+	startCmd.PersistentFlags().String("dbpath", "", "database path")
+	viper.BindPFlag("dbpath", startCmd.PersistentFlags().Lookup("dbpath"))
+	RootCmd.AddCommand(startCmd)
+
 }

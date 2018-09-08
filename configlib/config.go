@@ -62,6 +62,7 @@ func loadDefaultSettings() {
 	viper.SetDefault("loglevel", "info")
 	// path to R on system, defaults to R in path
 	viper.SetDefault("rpath", "R")
+	viper.SetDefault("dbpath", "")
 	viper.SetDefault("port", "8950")
 	viper.SetDefault("workers", runtime.NumCPU()-1)
 	// badger recommends many procs
