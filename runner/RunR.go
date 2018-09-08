@@ -64,13 +64,14 @@ func RunR(
 	return cmd.Run()
 }
 
-// RunRscript launches an interactive R console
+// RunRscript runs an Rscript and returns the result, along with the any errors and exit code
+// exit code 0 - success, 1 - error, 2 - script not found`
 func RunRscript(
 	fs afero.Fs,
 	rs RSettings,
 	es ExecSettings,
 	lg *logrus.Logger,
-) (string, error) {
+) (string, error, int) {
 
 	cmdArgs := []string{
 		"--no-save",
@@ -89,7 +90,6 @@ func RunRscript(
 			"cmdArgs":      cmdArgs,
 			"RSettings":    rs,
 			"ExecSettings": es,
-			"env":          rLibsSite,
 		}).Debug("command args")
 
 	// --vanilla is a command for R and should be specified before the CMD, eg
@@ -145,5 +145,5 @@ func RunRscript(
 			"stderr":   stderr,
 			"exitCode": exitCode,
 		}).Info("cmd output")
-	return stdout, err
+	return stdout, err, exitCode
 }
