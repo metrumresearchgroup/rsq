@@ -46,7 +46,7 @@ func (w *Worker) Start(lg *logrus.Logger) {
 				work.Status = "RUNNING"
 				work.RunDetails.StartTime = time.Now().UTC()
 				w.UpdateQueue <- work
-				result, _ := runner.RunRscript(appFS, rs, es, lg)
+				result, _, exitCode := runner.RunRscript(appFS, rs, es, lg)
 				work.RunDetails.EndTime = time.Now().UTC()
 				lg.WithFields(logrus.Fields{
 					"WID":      w.ID,
@@ -54,8 +54,12 @@ func (w *Worker) Start(lg *logrus.Logger) {
 					"Duration": work.RunDetails.EndTime.Sub(work.RunDetails.StartTime),
 				}).Debug("completed job")
 				work.Result.Output = result
-				work.Status = "COMPLETED"
-				work.Result.ExitCode = 0
+				work.Result.ExitCode = int32(exitCode)
+				if exitCode == 0 {
+					work.Status = "COMPLETED"
+				} else {
+					work.Status = "ERROR"
+				}
 				w.UpdateQueue <- work
 
 			case <-w.Quit:
