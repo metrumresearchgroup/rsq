@@ -40,14 +40,11 @@ func LoadConfigFromPath(configFilename string) error {
 	viper.SetConfigFile(configFilename)
 	err := viper.ReadInConfig()
 	if err != nil {
-		// panic if can't find or parse config as this could be explicit to user expectations
-		if _, ok := err.(*os.PathError); ok {
-			panic(fmt.Errorf("could not find a config file at path: %s", configFilename))
-		}
 		if _, ok := err.(viper.ConfigParseError); ok {
 			// found config file but couldn't parse it, should error
 			panic(fmt.Errorf("unable to parse config file with error (%s)", err))
 		}
+		fmt.Println("no config file detected, using default settings")
 	}
 
 	loadDefaultSettings()

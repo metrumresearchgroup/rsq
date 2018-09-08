@@ -26,8 +26,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// VERSION is the current pkc version
-const VERSION string = "0.0.0-1"
+// VERSION is the current rsq version
+const VERSION string = "0.0.1-beta.1"
 
 var log *logrus.Logger
 var fs afero.Fs

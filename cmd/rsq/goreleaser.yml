@@ -18,5 +18,5 @@ build:
 brew:
   # Repository to push the tap to.
   github:
-    owner: dpastoor 
+    owner: metrumresearchgroup 
     name: homebrew-tap 
