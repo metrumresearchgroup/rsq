@@ -53,8 +53,9 @@ type JobService interface {
 	GetJobs() ([]Job, error)
 	GetJobsByStatus(status string) ([]Job, error)
 	GetJobByID(jobID uint64) (Job, error)
-	CreateJob(m *Job) error
+	CreateJob(m *Job) (Job, error)
 	CreateJobs(job []Job) ([]Job, error)
+	CancelJob(jobID uint64) error
 	AcquireNextQueuedJob() (Job, error)
 	UpdateJob(m *Job) error
 }
