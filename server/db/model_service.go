@@ -21,8 +21,8 @@ type JobService struct {
 }
 
 // GetJobs returns all jobs in the db
-func (m *JobService) GetJobs() ([]server.Job, error) {
-	var jobs []server.Job
+func (m *JobService) GetJobs() ([]*server.Job, error) {
+	var jobs []*server.Job
 	m.client.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
@@ -47,8 +47,8 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 				// TODO: do something better
 				continue
 			}
-			var job server.Job
-			err = internal.UnmarshalJob(v, &job)
+			var job *server.Job
+			err = internal.UnmarshalJob(v, job)
 			if err != nil {
 				fmt.Println("error unmarshalling")
 				fmt.Println(item, k, v)
@@ -64,8 +64,8 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 }
 
 // GetJobsByStatus returns all jobs in the db
-func (m *JobService) GetJobsByStatus(status string) ([]server.Job, error) {
-	var jobs []server.Job
+func (m *JobService) GetJobsByStatus(status string) ([]*server.Job, error) {
+	var jobs []*server.Job
 	err := m.client.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
@@ -90,8 +90,8 @@ func (m *JobService) GetJobsByStatus(status string) ([]server.Job, error) {
 				// TODO: do something better
 				continue
 			}
-			var job server.Job
-			err = internal.UnmarshalJob(v, &job)
+			var job *server.Job
+			err = internal.UnmarshalJob(v, job)
 			if err != nil {
 				fmt.Println("error unmarshalling")
 				fmt.Println(item, k, v)
@@ -112,8 +112,8 @@ func (m *JobService) GetJobsByStatus(status string) ([]server.Job, error) {
 }
 
 // GetJobByID returns details about a specific Job
-func (m *JobService) GetJobByID(jobID uint64) (server.Job, error) {
-	var job server.Job
+func (m *JobService) GetJobByID(jobID uint64) (*server.Job, error) {
+	var job *server.Job
 	err := m.client.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
@@ -138,8 +138,8 @@ func (m *JobService) GetJobByID(jobID uint64) (server.Job, error) {
 				// TODO: do something better
 				continue
 			}
-			var newjob server.Job
-			err = internal.UnmarshalJob(v, &newjob)
+			var newjob *server.Job
+			err = internal.UnmarshalJob(v, newjob)
 			if err != nil {
 				fmt.Println("error unmarshalling")
 				fmt.Println(item, k, v)
@@ -196,13 +196,13 @@ func (m *JobService) CreateJob(job *server.Job) error {
 }
 
 // CreateJobs adds an array of jobs to the db in a single batch transaction
-func (m *JobService) CreateJobs(jobs []server.Job) ([]server.Job, error) {
+func (m *JobService) CreateJobs(jobs []*server.Job) ([]*server.Job, error) {
 	return jobs, nil
 }
 
 // AcquireNextQueuedJob returns the next job with status QUEUED while also changing the value to RUNNING
-func (m *JobService) AcquireNextQueuedJob() (server.Job, error) {
-	var nextJob server.Job
+func (m *JobService) AcquireNextQueuedJob() (*server.Job, error) {
+	var nextJob *server.Job
 	return nextJob, nil
 }
 

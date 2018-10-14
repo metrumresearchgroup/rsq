@@ -2,7 +2,7 @@ package server
 
 import "time"
 
-// RScript contains information needed to run an Rscript
+//RScript contains information needed to run an Rscript
 type Rscript struct {
 	RPath       string            `json:"r_path,omitempty"`
 	WorkDir     string            `json:"work_dir,omitempty"`
@@ -33,14 +33,14 @@ type RunDetails struct {
 
 // Job represents information about the job queue
 type Job struct {
-	ID         uint64
-	Status     string
-	RunDetails RunDetails
+	ID         uint64     `json:"id,omitempty"`
+	Status     string     `json:"status,omitempty"`
+	RunDetails RunDetails `json:"run_details,omitempty"`
 	// some information about the job like the title
-	Context string
-	Rscript Rscript
-	Result  Result
-	User    string
+	Context string  `json:"context,omitempty"`
+	Rscript Rscript `json:"rscript,omitempty"`
+	Result  Result  `json:"result,omitempty"`
+	User    string  `json:"user,omitempty"`
 }
 
 // Client creates a connection to services
@@ -50,12 +50,12 @@ type Client interface {
 
 // JobService describes the interface to interact with models
 type JobService interface {
-	GetJobs() ([]Job, error)
-	GetJobsByStatus(status string) ([]Job, error)
-	GetJobByID(jobID uint64) (Job, error)
-	CreateJob(m *Job) (Job, error)
-	CreateJobs(job []Job) ([]Job, error)
-	CancelJob(jobID uint64) error
-	AcquireNextQueuedJob() (Job, error)
+	GetJobs() ([]*Job, error)
+	GetJobsByStatus(status string) ([]*Job, error)
+	GetJobByID(jobID uint64) (*Job, error)
+	CreateJob(m *Job) error
+	CreateJobs(job []*Job) error
+	CancelJob(jobID uint64) (bool, error)
+	AcquireNextQueuedJob() (*Job, error)
 	UpdateJob(m *Job) error
 }
