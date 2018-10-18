@@ -20,6 +20,12 @@ type JobService struct {
 	client *Client
 }
 
+// CancelJob is a stub to cancel jobs
+func (m *JobService) CancelJob(id uint64) (bool, error) {
+	panic("cancel job not yet implemented")
+	return false, nil
+}
+
 // GetJobs returns all jobs in the db
 func (m *JobService) GetJobs() ([]*server.Job, error) {
 	var jobs []*server.Job
@@ -196,8 +202,8 @@ func (m *JobService) CreateJob(job *server.Job) error {
 }
 
 // CreateJobs adds an array of jobs to the db in a single batch transaction
-func (m *JobService) CreateJobs(jobs []*server.Job) ([]*server.Job, error) {
-	return jobs, nil
+func (m *JobService) CreateJobs(jobs []*server.Job) error {
+	return nil
 }
 
 // AcquireNextQueuedJob returns the next job with status QUEUED while also changing the value to RUNNING
