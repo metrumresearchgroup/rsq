@@ -29,7 +29,7 @@ const (
 // JobHandler represents the HTTP API handler for JobService
 type JobHandler struct {
 	JobService server.JobService
-	Queue      jobqueue.JobQueue
+	Queue      *jobqueue.JobQueue
 	Logger     *logrus.Logger
 }
 
@@ -38,8 +38,8 @@ func NewJobHandler(js server.JobService, n int, lg *logrus.Logger) *JobHandler {
 	return &JobHandler{
 		Logger:     lg,
 		JobService: js,
-		Queue: jobqueue.NewJobQueue(n, func(j server.Job) {
-			js.UpdateJob(&j)
+		Queue: jobqueue.NewJobQueue(js, n, func(j *server.Job) {
+			js.UpdateJob(j)
 		}, lg),
 	}
 }
@@ -47,7 +47,7 @@ func NewJobHandler(js server.JobService, n int, lg *logrus.Logger) *JobHandler {
 // HandleGetJobsByStatus provides all jobs
 // accepts query param status with values COMPLETED, QUEUED, RUNNING
 func (c *JobHandler) HandleGetJobsByStatus(w http.ResponseWriter, r *http.Request) {
-	var jobs []server.Job
+	var jobs []*server.Job
 	status := r.URL.Query().Get("status")
 	fmt.Println("status: ", status)
 	if status != "" {
@@ -88,18 +88,18 @@ func (c *JobHandler) JobCtx(next http.Handler) http.Handler {
 
 // HandleSubmitJob adds a job to the database for workers to execute
 func (c *JobHandler) HandleSubmitJob(w http.ResponseWriter, r *http.Request) {
-	var job server.Job
-	if err := render.DecodeJSON(r.Body, &job); err != nil {
+	var job *server.Job
+	if err := render.DecodeJSON(r.Body, job); err != nil {
 		c.Logger.WithFields(logrus.Fields{
 			"body": r.Body,
-			"err": err,
+			"err":  err,
 		}).Warn("Decoding JSON from job submission failed")
 		render.JSON(w, r, err.Error())
 		return
 	}
 	job.RunDetails.QueueTime = time.Now().UTC()
-	err := c.JobService.CreateJob(&job)
-	c.Queue.Push(job)
+	err := c.JobService.CreateJob(job)
+	c.Queue.Push(job.ID)
 	if err != nil {
 		c.Logger.WithFields(logrus.Fields{
 			"err": err,
