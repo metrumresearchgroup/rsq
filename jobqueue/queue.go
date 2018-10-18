@@ -11,7 +11,7 @@ import (
 
 // WorkRequest encapsulates the job requested to be run
 type WorkRequest struct {
-	Job *server.Job
+	JobID uint64
 }
 
 // JobUpdate provides information about the Job in the queue
@@ -28,6 +28,7 @@ type Worker struct {
 	WorkQueue   <-chan *WorkRequest
 	UpdateQueue chan<- *JobUpdate
 	Quit        chan bool
+	js          server.JobService
 }
 
 // JobQueue represents a new job queue
@@ -44,45 +45,52 @@ func (w *Worker) Start(lg *logrus.Logger) {
 		appFS := afero.NewOsFs()
 		for {
 			select {
-			case work := <-w.WorkQueue:
+			case jid := <-w.WorkQueue:
 				// Receive a work request.
-
+				work, err := w.js.GetJobByID(jid.JobID)
+				if err != nil {
+					lg.WithFields(logrus.Fields{
+						"error": err,
+						"JID":   jid.JobID,
+					}).Error("error getting job, aborting...")
+					continue
+				}
 				lg.WithFields(logrus.Fields{
 					"WID": w.ID,
-					"JID": work.Job.ID,
+					"JID": work.ID,
 				}).Debug("getting job")
 				rs := runner.RSettings{
-					Rpath:   work.Job.Rscript.RPath,
-					EnvVars: work.Job.Rscript.Renv,
+					Rpath:   work.Rscript.RPath,
+					EnvVars: work.Rscript.Renv,
 				}
 				es := runner.ExecSettings{
-					WorkDir: work.Job.Rscript.WorkDir,
-					Rfile:   work.Job.Rscript.RscriptPath,
+					WorkDir: work.Rscript.WorkDir,
+					Rfile:   work.Rscript.RscriptPath,
 				}
-				work.Job.Status = "RUNNING"
-				work.Job.RunDetails.StartTime = time.Now().UTC()
+				work.Status = "RUNNING"
+				work.RunDetails.StartTime = time.Now().UTC()
 				w.UpdateQueue <- &JobUpdate{
-					Job:          work.Job,
+					Job:          work,
 					msg:          "starting job",
 					ShouldUpdate: true,
 				}
 				result, err, exitCode := runner.RunRscript(appFS, rs, es, lg)
-				work.Job.RunDetails.EndTime = time.Now().UTC()
-				work.Job.RunDetails.Error = err.Error()
+				work.RunDetails.EndTime = time.Now().UTC()
+				work.RunDetails.Error = err.Error()
 				lg.WithFields(logrus.Fields{
 					"WID":      w.ID,
-					"JID":      work.Job.ID,
-					"Duration": work.Job.RunDetails.EndTime.Sub(work.Job.RunDetails.StartTime),
+					"JID":      work.ID,
+					"Duration": work.RunDetails.EndTime.Sub(work.RunDetails.StartTime),
 				}).Debug("completed job")
-				work.Job.Result.Output = result
-				work.Job.Result.ExitCode = int32(exitCode)
+				work.Result.Output = result
+				work.Result.ExitCode = int32(exitCode)
 				if exitCode == 0 {
-					work.Job.Status = "COMPLETED"
+					work.Status = "COMPLETED"
 				} else {
-					work.Job.Status = "ERROR"
+					work.Status = "ERROR"
 				}
 				w.UpdateQueue <- &JobUpdate{
-					Job:          work.Job,
+					Job:          work,
 					msg:          "completed job",
 					err:          err,
 					ShouldUpdate: true,
@@ -107,7 +115,7 @@ func (w *Worker) Stop() {
 }
 
 // NewJobQueue provides a new Job queue with a number of workers
-func NewJobQueue(n int, updateFunc func(*server.Job), lg *logrus.Logger) JobQueue {
+func NewJobQueue(js server.JobService, n int, updateFunc func(*server.Job), lg *logrus.Logger) *JobQueue {
 	wrc := make(chan *WorkRequest, 2000)
 	uq := make(chan *JobUpdate, 50)
 	jc := JobQueue{
@@ -115,10 +123,10 @@ func NewJobQueue(n int, updateFunc func(*server.Job), lg *logrus.Logger) JobQueu
 		UpdateQueue: uq,
 	}
 	for i := 0; i < n; i++ {
-		jc.RegisterNewWorker(i+1, lg)
+		jc.RegisterNewWorker(i+1, js, lg)
 	}
 	go jc.HandleUpdates(updateFunc)
-	return jc
+	return &jc
 }
 
 // HandleUpdates handles updates
@@ -132,13 +140,14 @@ func (j *JobQueue) HandleUpdates(fn func(*server.Job)) {
 }
 
 // RegisterNewWorker registers new workers
-func (j *JobQueue) RegisterNewWorker(id int, lg *logrus.Logger) {
+func (j *JobQueue) RegisterNewWorker(id int, js server.JobService, lg *logrus.Logger) {
 	// Create, and return the worker.
 	worker := Worker{
 		ID:          id,
 		WorkQueue:   j.WorkQueue,
 		UpdateQueue: j.UpdateQueue,
 		Quit:        make(chan bool),
+		js:          js,
 	}
 	worker.Start(lg)
 	j.Workers = append(j.Workers, worker)
@@ -146,6 +155,6 @@ func (j *JobQueue) RegisterNewWorker(id int, lg *logrus.Logger) {
 }
 
 // Push adds work to the JobQueue
-func (j *JobQueue) Push(w *server.Job) {
-	j.WorkQueue <- &WorkRequest{Job: w}
+func (j *JobQueue) Push(w uint64) {
+	j.WorkQueue <- &WorkRequest{JobID: w}
 }
