@@ -94,16 +94,18 @@ func (c *JobHandler) HandleSubmitJob(w http.ResponseWriter, r *http.Request) {
 			"body": r.Body,
 			"err":  err,
 		}).Warn("Decoding JSON from job submission failed")
-		render.JSON(w, r, err.Error())
+		render.JSON(w, r, fmt.Sprintf("Error decoding JSON %s", r.Body))
 		return
 	}
 	job.RunDetails.QueueTime = time.Now().UTC()
 	err := c.JobService.CreateJob(job)
-	c.Queue.Push(job.ID)
 	if err != nil {
 		c.Logger.WithFields(logrus.Fields{
 			"err": err,
 		}).Warn("Insertion of jobs failed")
+		render.JSON(w, r, fmt.Sprintf("error inserting job"))
+		return
 	}
+	c.Queue.Push(job.ID)
 	render.JSON(w, r, job)
 }
