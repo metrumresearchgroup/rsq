@@ -50,6 +50,12 @@ func NewHTTPServer(js server.JobService, version string, port string, n int, lg 
 			r.Use(httpClient.JobCtx)
 			r.Get("/", httpClient.HandleGetJobByID) // GET /jobs/123
 		})
+		r.Route("/cancel", func(r chi.Router) {
+			r.Route("/{jobID}", func(r chi.Router) {
+				r.Use(httpClient.JobCtx)
+				r.Put("/", httpClient.HandleCancelJob) // GET /jobs/123
+			})
+		})
 	})
 	r.Route("/jobs", func(r chi.Router) {
 		r.Get("/", httpClient.HandleGetJobsByStatus)

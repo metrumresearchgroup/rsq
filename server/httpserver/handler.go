@@ -68,6 +68,29 @@ func (c *JobHandler) HandleGetJobByID(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, job)
 }
 
+// HandleCancelJob
+func (c *JobHandler) HandleCancelJob(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	job, ok := ctx.Value(keyJobID).(*server.Job)
+	if !ok {
+		http.Error(w, http.StatusText(422), 422)
+		return
+	}
+	cancelled, err := c.JobService.CancelJob(job.ID)
+	if err != nil {
+		http.Error(w, http.StatusText(422), 422)
+		return
+	}
+	if cancelled {
+		w.WriteHeader(http.StatusAccepted)
+		render.JSON(w, r, true)
+	} else {
+		w.WriteHeader(http.StatusNotModified)
+		render.JSON(w, r, false)
+	}
+
+}
+
 // JobCtx is the context
 func (c *JobHandler) JobCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

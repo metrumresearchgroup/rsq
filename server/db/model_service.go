@@ -22,8 +22,18 @@ type JobService struct {
 
 // CancelJob is a stub to cancel jobs
 func (m *JobService) CancelJob(id uint64) (bool, error) {
-	panic("cancel job not yet implemented")
-	return false, nil
+	j, err := m.GetJobByID(id)
+	if err != nil {
+		return false, err
+	}
+	if j.Status == "QUEUED" {
+		j.Status = "CANCELLED"
+	}
+	err = m.UpdateJob(j)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // GetJobs returns all jobs in the db

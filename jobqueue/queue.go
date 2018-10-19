@@ -65,6 +65,19 @@ func (w *Worker) Start(lg *logrus.Logger) {
 					}).Error("error getting job, aborting...")
 					continue
 				}
+				if work.Status == "CANCELLED" {
+					lg.WithFields(logrus.Fields{
+						"WID": w.ID,
+						"JID": jid.JobID,
+					}).Debug("job detected as cancelled")
+					w.UpdateQueue <- &JobUpdate{
+						Job:          work,
+						msg:          "cancelled job",
+						err:          err,
+						ShouldUpdate: false,
+					}
+					continue
+				}
 				rs := runner.RSettings{
 					Rpath:   work.Rscript.RPath,
 					EnvVars: work.Rscript.Renv,
@@ -75,17 +88,16 @@ func (w *Worker) Start(lg *logrus.Logger) {
 				}
 				work.Status = "RUNNING"
 				work.RunDetails.StartTime = time.Now().UTC()
-				w.UpdateQueue <- &JobUpdate{
-					Job:          work,
-					msg:          "starting job",
-					ShouldUpdate: true,
-				}
-
 				lg.WithFields(logrus.Fields{
 					"WID": w.ID,
 					"JID": jid.JobID,
 					"job": work,
 				}).Debug("starting Rscript")
+				w.UpdateQueue <- &JobUpdate{
+					Job:          work,
+					msg:          "starting job",
+					ShouldUpdate: true,
+				}
 				result, err, exitCode := runner.RunRscript(appFS, rs, es, lg)
 				work.RunDetails.EndTime = time.Now().UTC()
 				if err != nil {
