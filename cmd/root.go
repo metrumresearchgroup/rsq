@@ -27,7 +27,7 @@ import (
 )
 
 // VERSION is the current rsq version
-const VERSION string = "0.0.1-beta.1"
+const VERSION string = "0.0.1-beta.2"
 
 var log *logrus.Logger
 var fs afero.Fs
@@ -62,7 +62,6 @@ func init() {
 
 	RootCmd.PersistentFlags().String("libpaths", "", "library paths, colon separated list")
 	viper.BindPFlag("libpaths", RootCmd.PersistentFlags().Lookup("libpaths"))
-
 
 	RootCmd.PersistentFlags().Bool("debug", false, "use debug mode")
 	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
