@@ -53,15 +53,15 @@ func (m *JobService) GetJobs() ([]*server.Job, error) {
 				// TODO: do something better
 				continue
 			}
-			var job *server.Job
-			err = internal.UnmarshalJob(v, job)
+			var job server.Job
+			err = internal.UnmarshalJob(v, &job)
 			if err != nil {
 				fmt.Println("error unmarshalling")
 				fmt.Println(item, k, v)
 				fmt.Println(err)
 				continue
 			} else {
-				jobs = append(jobs, job)
+				jobs = append(jobs, &job)
 			}
 		}
 		return nil
@@ -96,8 +96,8 @@ func (m *JobService) GetJobsByStatus(status string) ([]*server.Job, error) {
 				// TODO: do something better
 				continue
 			}
-			var job *server.Job
-			err = internal.UnmarshalJob(v, job)
+			var job server.Job
+			err = internal.UnmarshalJob(v, &job)
 			if err != nil {
 				fmt.Println("error unmarshalling")
 				fmt.Println(item, k, v)
@@ -105,7 +105,7 @@ func (m *JobService) GetJobsByStatus(status string) ([]*server.Job, error) {
 				continue
 			} else {
 				if job.Status == status {
-					jobs = append(jobs, job)
+					jobs = append(jobs, &job)
 				}
 			}
 		}
