@@ -88,8 +88,8 @@ func (c *JobHandler) JobCtx(next http.Handler) http.Handler {
 
 // HandleSubmitJob adds a job to the database for workers to execute
 func (c *JobHandler) HandleSubmitJob(w http.ResponseWriter, r *http.Request) {
-	var job *server.Job
-	if err := render.DecodeJSON(r.Body, job); err != nil {
+	var job server.Job
+	if err := render.DecodeJSON(r.Body, &job); err != nil {
 		c.Logger.WithFields(logrus.Fields{
 			"body": r.Body,
 			"err":  err,
@@ -98,7 +98,7 @@ func (c *JobHandler) HandleSubmitJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	job.RunDetails.QueueTime = time.Now().UTC()
-	err := c.JobService.CreateJob(job)
+	err := c.JobService.CreateJob(&job)
 	if err != nil {
 		c.Logger.WithFields(logrus.Fields{
 			"err": err,

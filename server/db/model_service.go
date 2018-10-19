@@ -144,8 +144,8 @@ func (m *JobService) GetJobByID(jobID uint64) (*server.Job, error) {
 				// TODO: do something better
 				continue
 			}
-			var newjob *server.Job
-			err = internal.UnmarshalJob(v, newjob)
+			var newjob server.Job
+			err = internal.UnmarshalJob(v, &newjob)
 			if err != nil {
 				fmt.Println("error unmarshalling")
 				fmt.Println(item, k, v)
@@ -153,7 +153,7 @@ func (m *JobService) GetJobByID(jobID uint64) (*server.Job, error) {
 				continue
 			}
 			if newjob.ID == jobID {
-				job = newjob
+				job = &newjob
 				return nil
 			}
 		}
