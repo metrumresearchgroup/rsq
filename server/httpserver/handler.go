@@ -49,13 +49,11 @@ func NewJobHandler(js server.JobService, n int, lg *logrus.Logger) *JobHandler {
 func (c *JobHandler) HandleGetJobsByStatus(w http.ResponseWriter, r *http.Request) {
 	var jobs []*server.Job
 	status := r.URL.Query().Get("status")
-	fmt.Println("status: ", status)
 	if status != "" {
 		jobs, _ = c.JobService.GetJobsByStatus(status)
 	} else {
 		jobs, _ = c.JobService.GetJobs()
 	}
-
 	render.JSON(w, r, jobs)
 }
 
@@ -63,7 +61,6 @@ func (c *JobHandler) HandleGetJobsByStatus(w http.ResponseWriter, r *http.Reques
 func (c *JobHandler) HandleGetJobByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	job, ok := ctx.Value(keyJobID).(*server.Job)
-
 	if !ok {
 		http.Error(w, http.StatusText(422), 422)
 		return
@@ -81,7 +78,7 @@ func (c *JobHandler) JobCtx(next http.Handler) http.Handler {
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
-		ctx := context.WithValue(r.Context(), keyJobID, &job)
+		ctx := context.WithValue(r.Context(), keyJobID, job)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
