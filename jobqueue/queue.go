@@ -47,18 +47,24 @@ func (w *Worker) Start(lg *logrus.Logger) {
 			select {
 			case jid := <-w.WorkQueue:
 				// Receive a work request.
+				lg.WithFields(logrus.Fields{
+					"WID": w.ID,
+					"JID": jid.JobID,
+				}).Debug("received work request")
 				work, err := w.js.GetJobByID(jid.JobID)
+				lg.WithFields(logrus.Fields{
+					"WID": w.ID,
+					"JID": jid.JobID,
+					"job": work,
+				}).Debug("got job")
 				if err != nil {
 					lg.WithFields(logrus.Fields{
 						"error": err,
 						"JID":   jid.JobID,
+						"job":   work,
 					}).Error("error getting job, aborting...")
 					continue
 				}
-				lg.WithFields(logrus.Fields{
-					"WID": w.ID,
-					"JID": work.ID,
-				}).Debug("getting job")
 				rs := runner.RSettings{
 					Rpath:   work.Rscript.RPath,
 					EnvVars: work.Rscript.Renv,
@@ -74,9 +80,17 @@ func (w *Worker) Start(lg *logrus.Logger) {
 					msg:          "starting job",
 					ShouldUpdate: true,
 				}
+
+				lg.WithFields(logrus.Fields{
+					"WID": w.ID,
+					"JID": jid.JobID,
+					"job": work,
+				}).Debug("starting Rscript")
 				result, err, exitCode := runner.RunRscript(appFS, rs, es, lg)
 				work.RunDetails.EndTime = time.Now().UTC()
-				work.RunDetails.Error = err.Error()
+				if err != nil {
+					work.RunDetails.Error = err.Error()
+				}
 				lg.WithFields(logrus.Fields{
 					"WID":      w.ID,
 					"JID":      work.ID,
