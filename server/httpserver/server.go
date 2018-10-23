@@ -18,7 +18,7 @@ func NewHTTPServer(js server.JobService, version string, port string, n int, lg 
 	// A good base middleware stack
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
+	r.Use(NewStructuredLogger(lg))
 	r.Use(middleware.Recoverer)
 
 	// When a client closes their connection midway through a request, the
