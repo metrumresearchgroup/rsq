@@ -20,9 +20,25 @@ type JobService struct {
 	client *Client
 }
 
+// CancelJob is a stub to cancel jobs
+func (m *JobService) CancelJob(id uint64) (bool, error) {
+	j, err := m.GetJobByID(id)
+	if err != nil {
+		return false, err
+	}
+	if j.Status == "QUEUED" {
+		j.Status = "CANCELLED"
+	}
+	err = m.UpdateJob(j)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // GetJobs returns all jobs in the db
-func (m *JobService) GetJobs() ([]server.Job, error) {
-	var jobs []server.Job
+func (m *JobService) GetJobs() ([]*server.Job, error) {
+	var jobs []*server.Job
 	m.client.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
@@ -55,7 +71,7 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 				fmt.Println(err)
 				continue
 			} else {
-				jobs = append(jobs, job)
+				jobs = append(jobs, &job)
 			}
 		}
 		return nil
@@ -64,8 +80,8 @@ func (m *JobService) GetJobs() ([]server.Job, error) {
 }
 
 // GetJobsByStatus returns all jobs in the db
-func (m *JobService) GetJobsByStatus(status string) ([]server.Job, error) {
-	var jobs []server.Job
+func (m *JobService) GetJobsByStatus(status string) ([]*server.Job, error) {
+	var jobs []*server.Job
 	err := m.client.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
@@ -99,7 +115,7 @@ func (m *JobService) GetJobsByStatus(status string) ([]server.Job, error) {
 				continue
 			} else {
 				if job.Status == status {
-					jobs = append(jobs, job)
+					jobs = append(jobs, &job)
 				}
 			}
 		}
@@ -112,8 +128,8 @@ func (m *JobService) GetJobsByStatus(status string) ([]server.Job, error) {
 }
 
 // GetJobByID returns details about a specific Job
-func (m *JobService) GetJobByID(jobID uint64) (server.Job, error) {
-	var job server.Job
+func (m *JobService) GetJobByID(jobID uint64) (*server.Job, error) {
+	var job *server.Job
 	err := m.client.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
@@ -147,7 +163,7 @@ func (m *JobService) GetJobByID(jobID uint64) (server.Job, error) {
 				continue
 			}
 			if newjob.ID == jobID {
-				job = newjob
+				job = &newjob
 				return nil
 			}
 		}
@@ -196,13 +212,13 @@ func (m *JobService) CreateJob(job *server.Job) error {
 }
 
 // CreateJobs adds an array of jobs to the db in a single batch transaction
-func (m *JobService) CreateJobs(jobs []server.Job) ([]server.Job, error) {
-	return jobs, nil
+func (m *JobService) CreateJobs(jobs []*server.Job) error {
+	return nil
 }
 
 // AcquireNextQueuedJob returns the next job with status QUEUED while also changing the value to RUNNING
-func (m *JobService) AcquireNextQueuedJob() (server.Job, error) {
-	var nextJob server.Job
+func (m *JobService) AcquireNextQueuedJob() (*server.Job, error) {
+	var nextJob *server.Job
 	return nextJob, nil
 }
 

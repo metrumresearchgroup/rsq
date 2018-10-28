@@ -24,6 +24,8 @@ func MarshalJob(m *server.Job) ([]byte, error) {
 		status = Job_RUNNING
 	case "COMPLETED":
 		status = Job_COMPLETED
+	case "CANCELLED":
+		status = Job_CANCELLED
 	case "ERROR":
 		status = Job_ERROR
 	default:
@@ -72,6 +74,8 @@ func UnmarshalJob(data []byte, m *server.Job) error {
 	switch status {
 	case Job_COMPLETED:
 		m.Status = "COMPLETED"
+	case Job_CANCELLED:
+		m.Status = "CANCELLED"
 	case Job_ERROR:
 		m.Status = "ERROR"
 	case Job_RUNNING:

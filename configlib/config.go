@@ -44,11 +44,11 @@ func LoadConfigFromPath(configFilename string) error {
 			// found config file but couldn't parse it, should error
 			panic(fmt.Errorf("unable to parse config file with error (%s)", err))
 		}
-		fmt.Println("no config file detected, using default settings")
+		fmt.Println("no config file detected, using default settings only")
 	}
 
 	loadDefaultSettings()
-	return nil
+	return err
 }
 
 func loadDefaultSettings() {

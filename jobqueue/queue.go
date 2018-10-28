@@ -11,15 +11,31 @@ import (
 
 // WorkRequest encapsulates the job requested to be run
 type WorkRequest struct {
-	JobID int64
+	JobID uint64
+}
+
+// JobUpdate provides information about the Job in the queue
+type JobUpdate struct {
+	Job          *server.Job
+	msg          string
+	err          error
+	ShouldUpdate bool
 }
 
 // Worker does work
 type Worker struct {
 	ID          int
-	WorkQueue   <-chan server.Job
-	UpdateQueue chan<- server.Job
+	WorkQueue   <-chan *WorkRequest
+	UpdateQueue chan<- *JobUpdate
 	Quit        chan bool
+	js          server.JobService
+}
+
+// JobQueue represents a new job queue
+type JobQueue struct {
+	WorkQueue   chan *WorkRequest
+	UpdateQueue chan *JobUpdate
+	Workers     []Worker
 }
 
 // Start starts a worker
@@ -29,12 +45,39 @@ func (w *Worker) Start(lg *logrus.Logger) {
 		appFS := afero.NewOsFs()
 		for {
 			select {
-			case work := <-w.WorkQueue:
+			case jid := <-w.WorkQueue:
 				// Receive a work request.
 				lg.WithFields(logrus.Fields{
 					"WID": w.ID,
-					"JID": work.ID,
-				}).Debug("getting job")
+					"JID": jid.JobID,
+				}).Debug("received work request")
+				work, err := w.js.GetJobByID(jid.JobID)
+				lg.WithFields(logrus.Fields{
+					"WID": w.ID,
+					"JID": jid.JobID,
+					"job": work,
+				}).Debug("got job")
+				if err != nil {
+					lg.WithFields(logrus.Fields{
+						"error": err,
+						"JID":   jid.JobID,
+						"job":   work,
+					}).Error("error getting job, aborting...")
+					continue
+				}
+				if work.Status == "CANCELLED" {
+					lg.WithFields(logrus.Fields{
+						"WID": w.ID,
+						"JID": jid.JobID,
+					}).Debug("job detected as cancelled")
+					w.UpdateQueue <- &JobUpdate{
+						Job:          work,
+						msg:          "cancelled job",
+						err:          err,
+						ShouldUpdate: false,
+					}
+					continue
+				}
 				rs := runner.RSettings{
 					Rpath:   work.Rscript.RPath,
 					EnvVars: work.Rscript.Renv,
@@ -45,9 +88,21 @@ func (w *Worker) Start(lg *logrus.Logger) {
 				}
 				work.Status = "RUNNING"
 				work.RunDetails.StartTime = time.Now().UTC()
-				w.UpdateQueue <- work
-				result, _, exitCode := runner.RunRscript(appFS, rs, es, lg)
+				lg.WithFields(logrus.Fields{
+					"WID": w.ID,
+					"JID": jid.JobID,
+					"job": work,
+				}).Debug("starting Rscript")
+				w.UpdateQueue <- &JobUpdate{
+					Job:          work,
+					msg:          "starting job",
+					ShouldUpdate: true,
+				}
+				result, err, exitCode := runner.RunRscript(appFS, rs, es, lg)
 				work.RunDetails.EndTime = time.Now().UTC()
+				if err != nil {
+					work.RunDetails.Error = err.Error()
+				}
 				lg.WithFields(logrus.Fields{
 					"WID":      w.ID,
 					"JID":      work.ID,
@@ -60,7 +115,12 @@ func (w *Worker) Start(lg *logrus.Logger) {
 				} else {
 					work.Status = "ERROR"
 				}
-				w.UpdateQueue <- work
+				w.UpdateQueue <- &JobUpdate{
+					Job:          work,
+					msg:          "completed job",
+					err:          err,
+					ShouldUpdate: true,
+				}
 
 			case <-w.Quit:
 				// We have been asked to stop.
@@ -80,43 +140,40 @@ func (w *Worker) Stop() {
 	}()
 }
 
-// JobQueue represents a new job queue
-type JobQueue struct {
-	WorkQueue   chan server.Job
-	UpdateQueue chan server.Job
-	Workers     []Worker
-}
-
 // NewJobQueue provides a new Job queue with a number of workers
-func NewJobQueue(n int, updateFunc func(server.Job), lg *logrus.Logger) JobQueue {
-	wrc := make(chan server.Job, 200)
-	uq := make(chan server.Job, 5)
+func NewJobQueue(js server.JobService, n int, updateFunc func(*server.Job), lg *logrus.Logger) *JobQueue {
+	wrc := make(chan *WorkRequest, 2000)
+	uq := make(chan *JobUpdate, 50)
 	jc := JobQueue{
 		WorkQueue:   wrc,
 		UpdateQueue: uq,
 	}
 	for i := 0; i < n; i++ {
-		jc.RegisterNewWorker(i+1, lg)
+		jc.RegisterNewWorker(i+1, js, lg)
 	}
 	go jc.HandleUpdates(updateFunc)
-	return jc
+	return &jc
 }
 
 // HandleUpdates handles updates
-func (j *JobQueue) HandleUpdates(fn func(server.Job)) {
+func (j *JobQueue) HandleUpdates(fn func(*server.Job)) {
 	for {
-		fn(<-j.UpdateQueue)
+		ju := <-j.UpdateQueue
+		if ju.ShouldUpdate {
+			fn(ju.Job)
+		}
 	}
 }
 
 // RegisterNewWorker registers new workers
-func (j *JobQueue) RegisterNewWorker(id int, lg *logrus.Logger) {
+func (j *JobQueue) RegisterNewWorker(id int, js server.JobService, lg *logrus.Logger) {
 	// Create, and return the worker.
 	worker := Worker{
 		ID:          id,
 		WorkQueue:   j.WorkQueue,
 		UpdateQueue: j.UpdateQueue,
 		Quit:        make(chan bool),
+		js:          js,
 	}
 	worker.Start(lg)
 	j.Workers = append(j.Workers, worker)
@@ -124,6 +181,6 @@ func (j *JobQueue) RegisterNewWorker(id int, lg *logrus.Logger) {
 }
 
 // Push adds work to the JobQueue
-func (j *JobQueue) Push(w server.Job) {
-	j.WorkQueue <- w
+func (j *JobQueue) Push(w uint64) {
+	j.WorkQueue <- &WorkRequest{JobID: w}
 }

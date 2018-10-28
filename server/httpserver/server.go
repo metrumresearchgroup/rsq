@@ -18,7 +18,7 @@ func NewHTTPServer(js server.JobService, version string, port string, n int, lg 
 	// A good base middleware stack
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
+	r.Use(NewStructuredLogger(lg))
 	r.Use(middleware.Recoverer)
 
 	// When a client closes their connection midway through a request, the
@@ -49,6 +49,12 @@ func NewHTTPServer(js server.JobService, version string, port string, n int, lg 
 		r.Route("/{jobID}", func(r chi.Router) {
 			r.Use(httpClient.JobCtx)
 			r.Get("/", httpClient.HandleGetJobByID) // GET /jobs/123
+		})
+		r.Route("/cancel", func(r chi.Router) {
+			r.Route("/{jobID}", func(r chi.Router) {
+				r.Use(httpClient.JobCtx)
+				r.Put("/", httpClient.HandleCancelJob) // GET /jobs/123
+			})
 		})
 	})
 	r.Route("/jobs", func(r chi.Router) {
