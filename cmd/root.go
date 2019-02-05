@@ -27,7 +27,7 @@ import (
 )
 
 // VERSION is the current rsq version
-const VERSION string = "0.0.1-beta.2"
+const VERSION string = "0.1.0-rc.1"
 
 var log *logrus.Logger
 var fs afero.Fs
