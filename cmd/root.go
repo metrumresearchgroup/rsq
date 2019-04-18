@@ -27,7 +27,7 @@ import (
 )
 
 // VERSION is the current rsq version
-const VERSION string = "0.0.1-beta.2"
+const VERSION string = "0.2.0-beta.1"
 
 var log *logrus.Logger
 var fs afero.Fs
@@ -60,9 +60,6 @@ func init() {
 	RootCmd.PersistentFlags().String("loglevel", "", "level for logging")
 	viper.BindPFlag("loglevel", RootCmd.PersistentFlags().Lookup("loglevel"))
 
-	RootCmd.PersistentFlags().String("libpaths", "", "library paths, colon separated list")
-	viper.BindPFlag("libpaths", RootCmd.PersistentFlags().Lookup("libpaths"))
-
 	RootCmd.PersistentFlags().Bool("debug", false, "use debug mode")
 	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
 	// Cobra also supports local flags, which will only run
@@ -78,6 +75,8 @@ func setGlobals() {
 	log = logrus.New()
 
 	switch logLevel := viper.GetString("loglevel"); logLevel {
+	case "trace":
+		log.Level = logrus.TraceLevel
 	case "debug":
 		log.Level = logrus.DebugLevel
 	case "info":

@@ -3,7 +3,7 @@
 project_name: rsq
 
 release:
-  prerelease: true
+  prerelease: false
 
 build:
   binary: rsq

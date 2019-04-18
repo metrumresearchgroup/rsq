@@ -53,7 +53,6 @@ func LoadConfigFromPath(configFilename string) error {
 
 func loadDefaultSettings() {
 	// the lib paths to use, colon separated list of paths
-	viper.SetDefault("libpaths", "")
 	viper.SetDefault("debug", false)
 	// should be one of Debug,Info,Warn,Error,Fatal,Panic
 	viper.SetDefault("loglevel", "info")

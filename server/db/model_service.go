@@ -230,7 +230,11 @@ func (m *JobService) UpdateJob(job *server.Job) error {
 		return err
 	}
 	err = m.client.db.Update(func(txn *badger.Txn) error {
-		// job id is one less than key since never want key of 0
+		// the transaction ID in the database is stored as the jobID-1, since
+		// user facing we never want a 0 job ID, however we still want to
+		// internally store values at the 0th byte index so we need to subtract
+		// the incremented value that we add when creating the job ID from a
+		// generated transcation id.
 		err = txn.Set(uint64ToBytes(job.ID-1), buf)
 		if err != nil {
 			// TODO: handle error
