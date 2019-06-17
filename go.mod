@@ -8,7 +8,7 @@ require (
 	github.com/Shopify/sarama v1.21.0 // indirect
 	github.com/coreos/etcd v3.3.12+incompatible // indirect
 	github.com/coreos/go-systemd v0.0.0-20190212144455-93d5ec2c7f76 // indirect
-	github.com/dgraph-io/badger v1.5.4
+	github.com/dgraph-io/badger v1.5.5
 	github.com/dgryski/go-farm v0.0.0-20190104051053-3adb47b1fb0f // indirect
 	github.com/dpastoor/goutils v1.2.0
 	github.com/gliderlabs/ssh v0.1.3 // indirect
