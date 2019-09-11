@@ -41,11 +41,8 @@ func (c *Client) Open() error {
 	if path == "" {
 		path = "/tmp/badger"
 	}
-	opts := badger.DefaultOptions
-	opts.Dir = path
-	opts.ValueDir = path
 
-	db, err := badger.Open(opts)
+	db, err := badger.Open(badger.DefaultOptions(path))
 	if err != nil {
 		log.Fatal(err)
 	}
