@@ -37,10 +37,11 @@ type Job struct {
 	Status     string     `json:"status,omitempty"`
 	RunDetails RunDetails `json:"run_details,omitempty"`
 	// some information about the job like the title
-	Context string  `json:"context,omitempty"`
-	Rscript Rscript `json:"rscript,omitempty"`
-	Result  Result  `json:"result,omitempty"`
-	User    string  `json:"user,omitempty"`
+	Context     string  `json:"context,omitempty"`
+	Rscript     Rscript `json:"rscript,omitempty"`
+	Result      Result  `json:"result,omitempty"`
+	User        string  `json:"user,omitempty"`
+	MemoryLimit float64 `json:"memory_limit,omitempty"`
 }
 
 // Client creates a connection to services

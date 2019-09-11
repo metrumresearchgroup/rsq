@@ -4,16 +4,17 @@ import (
 	"testing"
 	"time"
 
-	"reflect"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/metrumresearchgroup/rsq/server"
 )
 
 func TestMarshalJob(t *testing.T) {
 	testJob := server.Job{
-		ID:     uint64(1234),
-		Status: "COMPLETED",
-		User:   "Ola",
+		ID:          uint64(1234),
+		Status:      "COMPLETED",
+		User:        "Ola",
+		MemoryLimit: 200,
 		RunDetails: server.RunDetails{
 			QueueTime: time.Now().AddDate(0, 0, -1).UTC(),
 			StartTime: time.Now().AddDate(0, 0, 0).UTC(),
@@ -38,10 +39,9 @@ func TestMarshalJob(t *testing.T) {
 		t.Fatal(err)
 	} else if err := UnmarshalJob(buf, &result); err != nil {
 		t.Fatal(err)
-	} else if !reflect.DeepEqual(testJob, result) {
-		// t.Log("output")
-		// t.Logf("%s", testJob)
-		// t.Logf("%s", result)
-		t.Fatalf("unexpected copy: %#v", result)
 	}
+	assert.Equal(t, testJob, result)
+	// t.Log("output")
+	// t.Logf("%s", testJob)
+	// t.Logf("%s", result)
 }

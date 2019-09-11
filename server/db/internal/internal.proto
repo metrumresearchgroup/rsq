@@ -41,4 +41,5 @@ message Job {
     Rscript rscript = 5;
     RscriptResult result = 6;
     string user = 7;
+    double memory_limit = 8;
 }

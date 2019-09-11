@@ -36,9 +36,10 @@ func MarshalJob(m *server.Job) ([]byte, error) {
 	startTime, _ := ptypes.TimestampProto(runDetails.StartTime)
 	endTime, _ := ptypes.TimestampProto(runDetails.EndTime)
 	return proto.Marshal(&Job{
-		Id:     m.ID,
-		Status: status,
-		User:   m.User,
+		Id:          m.ID,
+		Status:      status,
+		User:        m.User,
+		MemoryLimit: m.MemoryLimit,
 		RunDetails: &RunDetails{
 			QueueTime: queueTime,
 			StartTime: startTime,
@@ -100,7 +101,8 @@ func UnmarshalJob(data []byte, m *server.Job) error {
 		Output:   pb.Result.Output,
 		ExitCode: pb.Result.ExitCode,
 	}
-	m.User = pb.User
+	m.User = pb.GetUser()
+	m.MemoryLimit = pb.GetMemoryLimit()
 	m.Rscript = server.Rscript{
 		RPath:       pb.Rscript.RPath,
 		WorkDir:     pb.Rscript.WorkDir,
