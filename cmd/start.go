@@ -65,7 +65,8 @@ func start(cmd *cobra.Command, args []string) error {
 func init() {
 	startCmd.PersistentFlags().Int("workers", 0, "number of workers to execute with")
 	viper.BindPFlag("workers", startCmd.PersistentFlags().Lookup("workers"))
-
+	startCmd.PersistentFlags().Int("memory", 0, "total memory available for calculating job queuing")
+	viper.BindPFlag("memory", startCmd.PersistentFlags().Lookup("memory"))
 	startCmd.PersistentFlags().String("port", "", "port number")
 	viper.BindPFlag("port", startCmd.PersistentFlags().Lookup("port"))
 	startCmd.PersistentFlags().String("dbpath", "", "database path")

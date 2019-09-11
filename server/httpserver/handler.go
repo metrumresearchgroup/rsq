@@ -34,11 +34,11 @@ type JobHandler struct {
 }
 
 // NewJobHandler provides a pointer to a new httpClient
-func NewJobHandler(js server.JobService, n int, lg *logrus.Logger) *JobHandler {
+func NewJobHandler(js server.JobService, n int, memory float64, lg *logrus.Logger) *JobHandler {
 	return &JobHandler{
 		Logger:     lg,
 		JobService: js,
-		Queue: jobqueue.NewJobQueue(js, n, func(j *server.Job) {
+		Queue: jobqueue.NewJobQueue(js, n, memory, func(j *server.Job) {
 			js.UpdateJob(j)
 		}, lg),
 	}

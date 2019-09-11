@@ -60,6 +60,8 @@ func loadDefaultSettings() {
 	viper.SetDefault("rpath", "R")
 	viper.SetDefault("dbpath", "")
 	viper.SetDefault("port", "8950")
+	// no memory constraints by default
+	viper.SetDefault("memory", 0)
 	viper.SetDefault("workers", runtime.NumCPU()-1)
 	// badger recommends many procs
 	viper.SetDefault("gomaxprocs", max(runtime.NumCPU()+10, 20))

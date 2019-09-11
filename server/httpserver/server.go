@@ -11,8 +11,8 @@ import (
 )
 
 // NewHTTPServer provides a new http server
-func NewHTTPServer(js server.JobService, version string, port string, n int, lg *logrus.Logger) {
-	httpClient := NewJobHandler(js, n, lg)
+func NewHTTPServer(js server.JobService, version string, port string, n int, memory float64, lg *logrus.Logger) {
+	httpClient := NewJobHandler(js, n, memory, lg)
 	r := chi.NewRouter()
 
 	// A good base middleware stack

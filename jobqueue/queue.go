@@ -52,6 +52,9 @@ func (w *Worker) Start(lg *logrus.Logger) {
 					"JID": jid.JobID,
 				}).Debug("received work request")
 				work, err := w.js.GetJobByID(jid.JobID)
+				if work.MemoryLimit != 0 {
+					// TODO do some more logic here to hold off the job
+				}
 				lg.WithFields(logrus.Fields{
 					"WID": w.ID,
 					"JID": jid.JobID,
@@ -141,7 +144,7 @@ func (w *Worker) Stop() {
 }
 
 // NewJobQueue provides a new Job queue with a number of workers
-func NewJobQueue(js server.JobService, n int, updateFunc func(*server.Job), lg *logrus.Logger) *JobQueue {
+func NewJobQueue(js server.JobService, n int, memory float64, updateFunc func(*server.Job), lg *logrus.Logger) *JobQueue {
 	wrc := make(chan *WorkRequest, 2000)
 	uq := make(chan *JobUpdate, 50)
 	jc := JobQueue{
