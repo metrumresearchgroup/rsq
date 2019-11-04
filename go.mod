@@ -56,7 +56,7 @@ require (
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/viper v1.4.0
+	github.com/spf13/viper v1.5.0
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/ugorji/go/codec v0.0.0-20190309163734-c4a1c341dc93 // indirect
 	go.opencensus.io v0.19.1 // indirect
