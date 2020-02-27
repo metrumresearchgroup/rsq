@@ -18,7 +18,7 @@ require (
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/lint v0.0.0-20190301231843-5614ed5bae6f // indirect
-	github.com/golang/protobuf v1.3.2
+	github.com/golang/protobuf v1.3.4
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/pprof v0.0.0-20190309163659-77426154d546 // indirect
 	github.com/googleapis/gax-go v2.0.2+incompatible // indirect
