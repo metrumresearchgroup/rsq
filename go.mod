@@ -12,7 +12,7 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20190104051053-3adb47b1fb0f // indirect
 	github.com/dpastoor/goutils v1.2.0
 	github.com/gliderlabs/ssh v0.1.3 // indirect
-	github.com/go-chi/chi v4.0.2+incompatible
+	github.com/go-chi/chi v4.0.4+incompatible
 	github.com/go-chi/render v1.0.1
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
